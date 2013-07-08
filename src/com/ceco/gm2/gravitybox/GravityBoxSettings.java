@@ -8,6 +8,7 @@ import java.util.Set;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
@@ -25,6 +26,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -51,7 +53,6 @@ public class GravityBoxSettings extends Activity {
 
     public static final String PREF_KEY_SIGNAL_ICON_AUTOHIDE = "pref_signal_icon_autohide";
     public static final String PREF_KEY_POWEROFF_ADVANCED = "pref_poweroff_advanced";
-    public static final String PREF_KEY_VOL_MUSIC_CONTROLS = "pref_vol_music_controls";
 
     public static final String PREF_KEY_VOL_KEY_CURSOR_CONTROL = "pref_vol_key_cursor_control";
     public static final int VOL_KEY_CURSOR_CONTROL_OFF = 0;
@@ -63,8 +64,10 @@ public class GravityBoxSettings extends Activity {
     public static final String PREF_KEY_FIX_DATETIME_CRASH = "pref_fix_datetime_crash";
     public static final String PREF_KEY_FIX_CALLER_ID_PHONE = "pref_fix_caller_id_phone";
     public static final String PREF_KEY_FIX_CALLER_ID_MMS = "pref_fix_caller_id_mms";
+    public static final String PREF_KEY_FIX_MMS_WAKELOCK = "pref_mms_fix_wakelock";
     public static final String PREF_KEY_FIX_CALENDAR = "pref_fix_calendar";
     public static final String PREF_KEY_STATUSBAR_BGCOLOR = "pref_statusbar_bgcolor";
+    public static final String PREF_KEY_STATUSBAR_CENTER_CLOCK = "pref_statusbar_center_clock";
     public static final String PREF_KEY_FIX_TTS_SETTINGS = "pref_fix_tts_settings";
     public static final String PREF_KEY_FIX_DEV_OPTS = "pref_fix_dev_opts";
     public static final String PREF_KEY_ABOUT_GRAVITYBOX = "pref_about_gb";
@@ -88,7 +91,17 @@ public class GravityBoxSettings extends Activity {
     private static final int LOCKSCREEN_BACKGROUND = 1024;
 
     public static final String PREF_KEY_LOCKSCREEN_MAXIMIZE_WIDGETS = "pref_lockscreen_maximize_widgets";
+    public static final String PREF_KEY_LOCKSCREEN_ROTATION = "pref_lockscreen_rotation";
+    public static final String PREF_KEY_LOCKSCREEN_MENU_KEY = "pref_lockscreen_menu_key";
     public static final String PREF_KEY_FLASHING_LED_DISABLE = "pref_flashing_led_disable";
+    public static final String PREF_KEY_CHARGING_LED_DISABLE = "pref_charging_led_disable";
+
+    public static final String PREF_KEY_BRIGHTNESS_MIN = "pref_brightness_min";
+    public static final String PREF_KEY_AUTOBRIGHTNESS = "pref_autobrightness";
+
+    public static final String PREF_KEY_VOL_MUSIC_CONTROLS = "pref_vol_music_controls";
+    public static final String PREF_KEY_MUSIC_VOLUME_STEPS = "pref_music_volume_steps";
+    public static final String PREF_KEY_SAFE_MEDIA_VOLUME = "pref_safe_media_volume";
 
     public static final String ACTION_PREF_BATTERY_STYLE_CHANGED = "mediatek.intent.action.BATTERY_PERCENTAGE_SWITCH";
     public static final String ACTION_PREF_SIGNAL_ICON_AUTOHIDE_CHANGED = "gravitybox.intent.action.SIGNAL_ICON_AUTOHIDE_CHANGED";
@@ -99,13 +112,23 @@ public class GravityBoxSettings extends Activity {
     public static final String ACTION_PREF_QUICKSETTINGS_CHANGED = "gravitybox.intent.action.QUICKSETTINGS_CHANGED";
     public static final String EXTRA_QS_PREFS = "qsPrefs";
 
+    public static final String ACTION_PREF_CENTER_CLOCK_CHANGED = "gravitybox.intent.action.CENTER_CLOCK_CHANGED";
+    public static final String EXTRA_CENTER_CLOCK = "centerClock";
+
+    public static final String ACTION_PREF_SAFE_MEDIA_VOLUME_CHANGED = "gravitybox.intent.action.SAFE_MEDIA_VOLUME_CHANGED";
+    public static final String EXTRA_SAFE_MEDIA_VOLUME_ENABLED = "enabled";
+
     private static final List<String> rebootKeys = new ArrayList<String>(Arrays.asList(
             PREF_KEY_FIX_DATETIME_CRASH,
             PREF_KEY_FIX_CALENDAR,
             PREF_KEY_FIX_CALLER_ID_PHONE,
             PREF_KEY_FIX_CALLER_ID_MMS,
             PREF_KEY_FIX_TTS_SETTINGS,
-            PREF_KEY_FIX_DEV_OPTS
+            PREF_KEY_FIX_DEV_OPTS,
+            PREF_KEY_BRIGHTNESS_MIN,
+            PREF_KEY_LOCKSCREEN_MENU_KEY,
+            PREF_KEY_FIX_MMS_WAKELOCK,
+            PREF_KEY_MUSIC_VOLUME_STEPS
     ));
 
     @Override
@@ -135,6 +158,7 @@ public class GravityBoxSettings extends Activity {
         private Preference mPrefLockscreenBgImage;
         private File wallpaperImage;
         private File wallpaperTemporary;
+        private EditTextPreference mPrefBrightnessMin;
 
         @SuppressWarnings("deprecation")
         @Override
@@ -190,6 +214,8 @@ public class GravityBoxSettings extends Activity {
 
             wallpaperImage = new File(getActivity().getFilesDir() + "/lockwallpaper"); 
             wallpaperTemporary = new File(getActivity().getCacheDir() + "/lockwallpaper.tmp");
+
+            mPrefBrightnessMin = (EditTextPreference) findPreference(PREF_KEY_BRIGHTNESS_MIN);
         }
 
         @Override
@@ -266,6 +292,14 @@ public class GravityBoxSettings extends Activity {
             } else if (key.equals(PREF_KEY_STATUSBAR_BGCOLOR)) {
                 intent.setAction(ACTION_PREF_STATUSBAR_BGCOLOR_CHANGED);
                 intent.putExtra(EXTRA_SB_BGCOLOR, prefs.getInt(PREF_KEY_STATUSBAR_BGCOLOR, Color.BLACK));
+            } else if (key.equals(PREF_KEY_STATUSBAR_CENTER_CLOCK)) {
+                intent.setAction(ACTION_PREF_CENTER_CLOCK_CHANGED);
+                intent.putExtra(EXTRA_CENTER_CLOCK, 
+                        prefs.getBoolean(PREF_KEY_STATUSBAR_CENTER_CLOCK, false));
+            } else if (key.equals(PREF_KEY_SAFE_MEDIA_VOLUME)) {
+                intent.setAction(ACTION_PREF_SAFE_MEDIA_VOLUME_CHANGED);
+                intent.putExtra(EXTRA_SAFE_MEDIA_VOLUME_ENABLED,
+                        prefs.getBoolean(PREF_KEY_SAFE_MEDIA_VOLUME, false));
             }
             if (intent.getAction() != null) {
                 getActivity().sendBroadcast(intent);
@@ -288,6 +322,27 @@ public class GravityBoxSettings extends Activity {
                 });
                 mDialog = builder.create();
                 mDialog.show();
+            }
+
+            if (key.equals(PREF_KEY_BRIGHTNESS_MIN)) {
+                String strVal = prefs.getString(PREF_KEY_BRIGHTNESS_MIN, "20");
+                try {
+                    int val = Integer.valueOf(strVal);
+                    int newVal = val;
+                    if (val < 20) newVal = 20;
+                    if (val > 80) newVal = 80;
+                    if (val != newVal) {
+                        Editor editor = prefs.edit();
+                        editor.putString(PREF_KEY_BRIGHTNESS_MIN, String.valueOf(newVal));
+                        editor.commit();
+                        mPrefBrightnessMin.setText(String.valueOf(newVal));
+                    }
+                } catch (NumberFormatException e) {
+                    Editor editor = prefs.edit();
+                    editor.putString(PREF_KEY_BRIGHTNESS_MIN, "20");
+                    editor.commit();
+                    mPrefBrightnessMin.setText("20");
+                }
             }
 
             if (rebootKeys.contains(key))

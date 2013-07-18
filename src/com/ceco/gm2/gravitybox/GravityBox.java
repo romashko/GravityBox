@@ -43,6 +43,7 @@ public class GravityBox implements IXposedHookZygoteInit, IXposedHookInitPackage
         }
 
         ModAudio.initZygote(prefs);
+        ModHwKeys.initZygote(prefs);
     }
 
     @Override
@@ -112,6 +113,10 @@ public class GravityBox implements IXposedHookZygoteInit, IXposedHookInitPackage
 
         if (lpparam.packageName.equals(ModCenterClock.PACKAGE_NAME)) {
             ModCenterClock.init(prefs, lpparam.classLoader);
+        }
+
+        if (lpparam.packageName.equals(ModPhone.PACKAGE_NAME)) {
+            ModPhone.init(prefs, lpparam.classLoader);
         }
     }
 }

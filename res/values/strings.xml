@@ -28,8 +28,8 @@
     <string name="sim_disable_notifications">Disable notifications</string>
     <string name="sim_disable_notifications_summary">\"SIM not inserted\" notifications disabled</string>
 
-    <string name="poweroff_advanced_title">Advanced Power-off menu</string>
-    <string name="poweroff_advanced_summary">Enables advanced power-off menu with option to reboot to recovery</string>
+    <string name="poweroff_advanced_title">Advanced reboot menu</string>
+    <string name="poweroff_advanced_summary">Enables advanced reboot menu with option to reboot to recovery</string>
     <string name="poweroff_recovery">Recovery</string>    
 
     <string name="vol_key_cursor_control_title">Volume key cursor control</string>
@@ -231,6 +231,7 @@
     <string name="hwkey_action_voice_search">Voice search</string>
     <string name="hwkey_action_prev_app">Switch to previous app</string>
     <string name="hwkey_action_kill">Kill foreground app</string>
+    <string name="hwkey_action_sleep">Go to sleep</string>
     <string name="pref_hwkey_kill_delay_title">Kill app long-press delay</string>
     <string name="pref_hwkey_kill_delay_summary">Applies to Kill foreground app action. Defines for how long key must be pressed to trigger kill</string>
     <string name="pref_hwkey_doubletap_speed_title">Double-tap speed</string>
@@ -253,5 +254,12 @@
     <!-- Disable vibrate on call connect -->
     <string name="pref_phone_call_connect_vibrate_disable_title">Disable vibrate on call connect</string>
     <string name="pref_phone_call_connect_vibrate_disable_summary">Disables vibration that is triggered when call is connected</string>
+
+    <!-- Soft reboot -->
+    <string name="reboot_soft">Soft reboot</string>
+
+    <!--  Solid black Holo background -->
+    <string name="pref_holo_bg_solid_black_title">Solid black background</string>
+    <string name="pref_holo_bg_solid_black_summary">Use solid black background for default Holo system theme instead of black-grey gradient (requires reboot)</string>
 
 </resources>

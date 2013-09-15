@@ -292,12 +292,6 @@
                     android:defaultValue="1000" />
 
             <CheckBoxPreference 
-                    android:key="pref_navbar_disable"
-                    android:title="@string/pref_navbar_disable_title"
-                    android:summary="@string/pref_navbar_disable_summary"
-                    android:defaultValue="false" />
-
-            <CheckBoxPreference 
                     android:key="pref_hwkeys_disable"
                     android:title="@string/pref_hwkeys_disable_title"
                     android:summary="@string/pref_hwkeys_disable_summary"
@@ -329,11 +323,10 @@
                 android:title="@string/pref_clock_hide_title"
                 android:defaultValue="false" />
 
-            <CheckBoxPreference 
-                android:key="pref_clock_link"
+            <com.ceco.gm2.gravitybox.preference.AppPickerPreference 
+                android:key="pref_clock_link_app"
                 android:title="@string/pref_clock_link_title"
-                android:summary="@string/pref_clock_link_summary"
-                android:defaultValue="false" />
+                android:summary="@string/pref_clock_link_summary" />
 
             <CheckBoxPreference 
                 android:key="pref_alarm_icon_hide"
@@ -406,6 +399,13 @@
         android:key="pref_cat_display"
         android:title="@string/pref_cat_display_title"
         android:summary="@string/pref_cat_display_summary">
+
+        <ListPreference
+            android:key="pref_expanded_desktop"
+            android:title="@string/pref_expanded_desktop_title"
+            android:entries="@array/expanded_desktop_entries"
+            android:entryValues="@array/expanded_desktop_values"
+            android:defaultValue="0" />
 
         <PreferenceScreen
             android:key="pref_cat_brightness"
@@ -589,6 +589,11 @@
         <com.ceco.gm2.gravitybox.preference.AppPickerPreference
             android:key="pref_hwkey_custom_app"
             android:title="@string/pref_hwkey_custom_app_title"
+            android:summary="@string/app_picker_none" />
+
+        <com.ceco.gm2.gravitybox.preference.AppPickerPreference
+            android:key="pref_hwkey_custom_app2"
+            android:title="@string/pref_hwkey_custom_app_title2"
             android:summary="@string/app_picker_none" />
 
         <ListPreference

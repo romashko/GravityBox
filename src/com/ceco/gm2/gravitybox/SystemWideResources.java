@@ -2,6 +2,7 @@ package com.ceco.gm2.gravitybox;
 
 import android.content.res.XModuleResources;
 import android.content.res.XResources;
+import android.os.Build;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 
@@ -11,11 +12,8 @@ public class SystemWideResources {
         try {
             XModuleResources modRes = XModuleResources.createInstance(GravityBox.MODULE_PATH, null);
 
-            XResources.setSystemWideReplacement("android", "bool", "config_animateScreenLights", true);
-
-            if (prefs.getBoolean(GravityBoxSettings.PREF_KEY_PIE_CONTROL_ENABLE, false)
-                    && prefs.getBoolean(GravityBoxSettings.PREF_KEY_NAVBAR_DISABLE, false)) {
-                XResources.setSystemWideReplacement("android", "bool", "config_showNavigationBar", false);
+            if (Build.VERSION.SDK_INT > 16) {
+                XResources.setSystemWideReplacement("android", "bool", "config_animateScreenLights", true);
             }
 
             boolean holoBgDither = prefs.getBoolean(GravityBoxSettings.PREF_KEY_HOLO_BG_DITHER, false);

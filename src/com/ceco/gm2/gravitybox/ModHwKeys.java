@@ -7,17 +7,20 @@ import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.hardware.input.InputManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.Process;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
@@ -53,6 +56,7 @@ public class ModHwKeys {
     private static String mStrNoPrevApp;
     private static String mStrCustomAppNone;
     private static String mStrCustomAppMissing;
+    private static String mStrExpandedDesktopDisabled;
     private static boolean mIsMenuLongPressed = false;
     private static boolean mIsMenuDoubleTap = false;
     private static boolean mIsBackLongPressed = false;
@@ -316,6 +320,7 @@ public class ModHwKeys {
             mStrNoPrevApp = res.getString(R.string.no_previous_app_found);
             mStrCustomAppNone = res.getString(R.string.hwkey_action_custom_app_none);
             mStrCustomAppMissing = res.getString(R.string.hwkey_action_custom_app_missing);
+            mStrExpandedDesktopDisabled = res.getString(R.string.hwkey_action_expanded_desktop_disabled);
     
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(GravityBoxSettings.ACTION_PREF_HWKEY_MENU_LONGPRESS_CHANGED);
@@ -419,6 +424,10 @@ public class ModHwKeys {
         } else if (action == GravityBoxSettings.HWKEY_ACTION_CUSTOM_APP
                     || action == GravityBoxSettings.HWKEY_ACTION_CUSTOM_APP2) {
             launchCustomApp(action);
+        } else if (action == GravityBoxSettings.HWKEY_ACTION_MENU) {
+            injectMenuKey();
+        } else if (action == GravityBoxSettings.HWKEY_ACTION_EXPANDED_DESKTOP) {
+            toggleExpandedDesktop();
         }
     }
 
@@ -593,5 +602,56 @@ public class ModHwKeys {
                 }
             }
         );
+    }
+
+    private static void injectMenuKey() {
+        Handler handler = (Handler) XposedHelpers.getObjectField(mPhoneWindowManager, "mHandler");
+        if (handler == null) return;
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final long eventTime = SystemClock.uptimeMillis();
+                    final InputManager inputManager = (InputManager)
+                            mContext.getSystemService(Context.INPUT_SERVICE);
+                    XposedHelpers.callMethod(inputManager, "injectInputEvent",
+                            new KeyEvent(eventTime - 50, eventTime - 50, KeyEvent.ACTION_DOWN, 
+                                    KeyEvent.KEYCODE_MENU, 0), 0);
+                    XposedHelpers.callMethod(inputManager, "injectInputEvent",
+                            new KeyEvent(eventTime - 50, eventTime - 25, KeyEvent.ACTION_UP, 
+                                    KeyEvent.KEYCODE_MENU, 0), 0);
+                } catch (Throwable t) {
+                        XposedBridge.log(t);
+                }
+            }
+        });
+    }
+
+    private static void toggleExpandedDesktop() {
+        Handler handler = (Handler) XposedHelpers.getObjectField(mPhoneWindowManager, "mHandler");
+        if (handler == null) return;
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final ContentResolver resolver = mContext.getContentResolver();
+                    final int edMode = Settings.System.getInt(resolver,
+                            ModExpandedDesktop.SETTING_EXPANDED_DESKTOP_MODE, 0);
+                    if (edMode == GravityBoxSettings.ED_DISABLED) {
+                        Toast.makeText(mContext, mStrExpandedDesktopDisabled, Toast.LENGTH_SHORT).show();
+                    } else {
+                        final int edState = Settings.System.getInt(resolver,
+                                ModExpandedDesktop.SETTING_EXPANDED_DESKTOP_STATE, 0);
+                        Settings.System.putInt(resolver, 
+                                ModExpandedDesktop.SETTING_EXPANDED_DESKTOP_STATE,
+                                (edState == 1) ? 0 : 1);
+                    }
+                } catch (Throwable t) {
+                        XposedBridge.log(t);
+                }
+            }
+        });
     }
 }

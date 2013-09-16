@@ -186,6 +186,8 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final int HWKEY_ACTION_RECENT_APPS = 6;
     public static final int HWKEY_ACTION_CUSTOM_APP = 7;
     public static final int HWKEY_ACTION_CUSTOM_APP2 = 8;
+    public static final int HWKEY_ACTION_MENU = 9;
+    public static final int HWKEY_ACTION_EXPANDED_DESKTOP = 10;
     public static final int HWKEY_DOUBLETAP_SPEED_DEFAULT = 400;
     public static final int HWKEY_KILL_DELAY_DEFAULT = 1000;
     public static final String ACTION_PREF_HWKEY_MENU_LONGPRESS_CHANGED = "gravitybox.intent.action.HWKEY_MENU_LONGPRESS_CHANGED";
@@ -294,6 +296,16 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String ACTION_PREF_SAFE_MEDIA_VOLUME_CHANGED = "gravitybox.intent.action.SAFE_MEDIA_VOLUME_CHANGED";
     public static final String EXTRA_SAFE_MEDIA_VOLUME_ENABLED = "enabled";
 
+    public static final String PREF_KEY_NAVBAR_OVERRIDE = "pref_navbar_override";
+    public static final String PREF_KEY_NAVBAR_ENABLE = "pref_navbar_enable";
+    public static final String PREF_KEY_NAVBAR_HEIGHT = "pref_navbar_height";
+    public static final String PREF_KEY_NAVBAR_WIDTH = "pref_navbar_width";
+    public static final String PREF_KEY_NAVBAR_MENUKEY = "pref_navbar_menukey";
+    public static final String ACTION_PREF_NAVBAR_CHANGED = "gravitybox.intent.action.ACTION_NAVBAR_CHANGED";
+    public static final String EXTRA_NAVBAR_HEIGHT = "navbarHeight";
+    public static final String EXTRA_NAVBAR_WIDTH = "navbarWidth";
+    public static final String EXTRA_NAVBAR_MENUKEY = "navbarMenukey";
+
     private static final List<String> rebootKeys = new ArrayList<String>(Arrays.asList(
             PREF_KEY_FIX_DATETIME_CRASH,
             PREF_KEY_FIX_CALENDAR,
@@ -308,12 +320,15 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             PREF_KEY_HOLO_BG_SOLID_BLACK,
             PREF_KEY_HOLO_BG_DITHER,
             PREF_KEY_SCREEN_DIM_LEVEL,
-            PREF_KEY_BRIGHTNESS_MASTER_SWITCH
+            PREF_KEY_BRIGHTNESS_MASTER_SWITCH,
+            PREF_KEY_NAVBAR_OVERRIDE,
+            PREF_KEY_NAVBAR_ENABLE
     ));
 
     private static final class SystemProperties {
         public boolean hasGeminiSupport;
         public boolean isTablet;
+        public boolean hasNavigationBar;
 
         public SystemProperties(Bundle data) {
             if (data.containsKey("hasGeminiSupport")) {
@@ -321,6 +336,9 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             }
             if (data.containsKey("isTablet")) {
                 isTablet = data.getBoolean("isTablet");
+            }
+            if (data.containsKey("hasNavigationBar")) {
+                hasNavigationBar = data.getBoolean("hasNavigationBar");
             }
         }
     }
@@ -487,6 +505,10 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
         private PreferenceScreen mPrefCatMedia;
         private CheckBoxPreference mPrefSafeMediaVolume;
         private ListPreference mPrefExpandedDesktop;
+        private CheckBoxPreference mPrefNavbarEnable;
+        private SeekBarPreference mPrefNavbarHeight;
+        private SeekBarPreference mPrefNavbarWidth;
+        private CheckBoxPreference mPrefNavbarMenukey;
 
         @SuppressWarnings("deprecation")
         @Override
@@ -606,6 +628,11 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
 
             mPrefExpandedDesktop = (ListPreference) findPreference(PREF_KEY_EXPANDED_DESKTOP);
 
+            mPrefNavbarEnable = (CheckBoxPreference) findPreference(PREF_KEY_NAVBAR_ENABLE);
+            mPrefNavbarHeight = (SeekBarPreference) findPreference(PREF_KEY_NAVBAR_HEIGHT);
+            mPrefNavbarWidth = (SeekBarPreference) findPreference(PREF_KEY_NAVBAR_WIDTH);
+            mPrefNavbarMenukey = (CheckBoxPreference) findPreference(PREF_KEY_NAVBAR_MENUKEY);
+
             // Remove Phone specific preferences on Tablet devices
             if (sSystemProperties.isTablet) {
                 getPreferenceScreen().removePreference(mPrefCatPhone);
@@ -682,6 +709,10 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 e.commit();
                 mQuickSettings.setValues(defVal);
             }
+
+            final boolean value = mPrefs.getBoolean(PREF_KEY_NAVBAR_ENABLE, sSystemProperties.hasNavigationBar);
+            mPrefs.edit().putBoolean(PREF_KEY_NAVBAR_ENABLE, value).commit();
+            mPrefNavbarEnable.setChecked(value);
         }
 
         private void updatePreferences(String key) {
@@ -813,6 +844,15 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
 
             if (key == null || key.equals(PREF_KEY_EXPANDED_DESKTOP)) {
                 mPrefExpandedDesktop.setSummary(mPrefExpandedDesktop.getEntry());
+            }
+
+            if (key == null || key.equals(PREF_KEY_NAVBAR_OVERRIDE)
+                    || key.equals(PREF_KEY_NAVBAR_ENABLE)) {
+                final boolean override = mPrefs.getBoolean(PREF_KEY_NAVBAR_OVERRIDE, false);
+                mPrefNavbarEnable.setEnabled(override);
+                mPrefNavbarHeight.setEnabled(override && mPrefNavbarEnable.isChecked());
+                mPrefNavbarWidth.setEnabled(override && mPrefNavbarEnable.isChecked());
+                mPrefNavbarMenukey.setEnabled(override && mPrefNavbarEnable.isChecked());
             }
         }
 
@@ -1009,6 +1049,15 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 intent.setAction(ACTION_PREF_EXPANDED_DESKTOP_MODE_CHANGED);
                 intent.putExtra(EXTRA_ED_MODE, Integer.valueOf(
                         prefs.getString(PREF_KEY_EXPANDED_DESKTOP, "0")));
+            } else if (key.equals(PREF_KEY_NAVBAR_HEIGHT)) {
+                intent.setAction(ACTION_PREF_NAVBAR_CHANGED);
+                intent.putExtra(EXTRA_NAVBAR_HEIGHT, prefs.getInt(PREF_KEY_NAVBAR_HEIGHT, 100));
+            } else if (key.equals(PREF_KEY_NAVBAR_WIDTH)) {
+                intent.setAction(ACTION_PREF_NAVBAR_CHANGED);
+                intent.putExtra(EXTRA_NAVBAR_WIDTH, prefs.getInt(PREF_KEY_NAVBAR_WIDTH, 100));
+            } else if (key.equals(PREF_KEY_NAVBAR_MENUKEY)) {
+                intent.setAction(ACTION_PREF_NAVBAR_CHANGED);
+                intent.putExtra(EXTRA_NAVBAR_MENUKEY, prefs.getBoolean(PREF_KEY_NAVBAR_MENUKEY, false));
             }
             if (intent.getAction() != null) {
                 getActivity().sendBroadcast(intent);

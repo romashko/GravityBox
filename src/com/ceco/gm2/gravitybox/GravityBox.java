@@ -77,8 +77,8 @@ public class GravityBox implements IXposedHookZygoteInit, IXposedHookInitPackage
         if (resparam.packageName.equals(ModBatteryStyle.PACKAGE_NAME))
             ModBatteryStyle.initResources(prefs, resparam);
 
-        if (resparam.packageName.equals(ModCenterClock.PACKAGE_NAME)) {
-            ModCenterClock.initResources(prefs, resparam);
+        if (resparam.packageName.equals(ModStatusBar.PACKAGE_NAME)) {
+            ModStatusBar.initResources(prefs, resparam);
         }
 
         if (resparam.packageName.equals(FixDevOptions.PACKAGE_NAME)) {
@@ -141,6 +141,11 @@ public class GravityBox implements IXposedHookZygoteInit, IXposedHookInitPackage
             if (lpparam.packageName.equals(ModCellConnService.PACKAGE_NAME)) {
                 ModCellConnService.init(prefs, lpparam.classLoader);
             }
+
+            if (Utils.hasGeminiSupport()
+                    && lpparam.packageName.equals(ModMtkToolbar.PACKAGE_NAME)) {
+                ModMtkToolbar.init(prefs, lpparam.classLoader);
+            }
         }
 
         // Common
@@ -172,8 +177,8 @@ public class GravityBox implements IXposedHookZygoteInit, IXposedHookInitPackage
             ModStatusbarColor.init(prefs, lpparam.classLoader);
         }
 
-        if (lpparam.packageName.equals(ModCenterClock.PACKAGE_NAME)) {
-            ModCenterClock.init(prefs, lpparam.classLoader);
+        if (lpparam.packageName.equals(ModStatusBar.PACKAGE_NAME)) {
+            ModStatusBar.init(prefs, lpparam.classLoader);
         }
 
         if (lpparam.packageName.equals(ModPhone.PACKAGE_NAME)) {
@@ -195,6 +200,10 @@ public class GravityBox implements IXposedHookZygoteInit, IXposedHookInitPackage
         if (lpparam.packageName.equals(ModNavigationBar.PACKAGE_NAME)
                 && prefs.getBoolean(GravityBoxSettings.PREF_KEY_NAVBAR_OVERRIDE, false)) {
             ModNavigationBar.init(prefs, lpparam.classLoader);
+        }
+
+        if (lpparam.packageName.equals(ModMms.PACKAGE_NAME)) {
+            ModMms.init(prefs, lpparam.classLoader);
         }
     }
 }

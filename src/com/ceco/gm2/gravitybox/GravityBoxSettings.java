@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.ceco.gm2.gravitybox.preference.AppPickerPreference;
 import com.ceco.gm2.gravitybox.preference.AutoBrightnessDialogPreference;
 import com.ceco.gm2.gravitybox.preference.SeekBarPreference;
 
@@ -100,6 +101,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String PREF_CAT_KEY_STATUSBAR = "pref_cat_statusbar";
     public static final String PREF_CAT_KEY_STATUSBAR_QS = "pref_cat_statusbar_qs";
     public static final String PREF_KEY_STATUSBAR_BGCOLOR = "pref_statusbar_bgcolor2";
+    public static final String PREF_KEY_STATUSBAR_COLOR_FOLLOW_STOCK_BATTERY = "pref_sbcolor_follow_stock_battery";
     public static final String PREF_KEY_STATUSBAR_ICON_COLOR_ENABLE = "pref_statusbar_icon_color_enable";
     public static final String PREF_KEY_STATUSBAR_ICON_COLOR = "pref_statusbar_icon_color";
     public static final String PREF_KEY_STATUSBAR_DATA_ACTIVITY_COLOR = "pref_statusbar_data_activity_color";
@@ -272,6 +274,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
 
     public static final String ACTION_PREF_STATUSBAR_COLOR_CHANGED = "gravitybox.intent.action.STATUSBAR_COLOR_CHANGED";
     public static final String EXTRA_SB_BG_COLOR = "bgColor";
+    public static final String EXTRA_SB_COLOR_FOLLOW = "sbColorFollow";
     public static final String EXTRA_SB_ICON_COLOR_ENABLE = "iconColorEnable";
     public static final String EXTRA_SB_ICON_COLOR = "iconColor";
     public static final String EXTRA_SB_DATA_ACTIVITY_COLOR = "dataActivityColor";
@@ -306,6 +309,36 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String EXTRA_NAVBAR_HEIGHT = "navbarHeight";
     public static final String EXTRA_NAVBAR_WIDTH = "navbarWidth";
     public static final String EXTRA_NAVBAR_MENUKEY = "navbarMenukey";
+
+    public static final String PREF_KEY_LOCKSCREEN_TARGETS_ENABLE = "pref_lockscreen_targets_enable";
+    public static final String PREF_KEY_LOCKSCREEN_TARGETS_APP[] = new String[] {
+        "pref_lockscreen_targets_app0", "pref_lockscreen_targets_app1", "pref_lockscreen_targets_app2",
+        "pref_lockscreen_targets_app3", "pref_lockscreen_targets_app4"
+    };
+    public static final String PREF_KEY_LOCKSCREEN_TARGETS_BOTTOM_OFFSET = "pref_lockscreen_targets_bottom_offset";
+
+    public static final String PREF_KEY_STATUSBAR_BRIGHTNESS = "pref_statusbar_brightness";
+    public static final String ACTION_PREF_STATUSBAR_BRIGHTNESS_CHANGED = "gravitybox.intent.action.STATUSBAR_BRIGHTNESS_CHANGED";
+    public static final String EXTRA_SB_BRIGHTNESS = "sbBrightness";
+
+    public static final String PREF_KEY_MMS_UNICODE_STRIPPING = "pref_mms_unicode_stripping";
+    public static final String UNISTR_LEAVE_INTACT = "leave_intact";
+    public static final String UNISTR_NON_ENCODABLE = "non_encodable";
+    public static final String UNISTR_ALL = "all";
+
+    public static final String PREF_CAT_KEY_PHONE_TELEPHONY = "pref_cat_phone_telephony";
+    public static final String PREF_CAT_KEY_PHONE_MOBILE_DATA = "pref_cat_phone_mobile_data";
+    public static final String PREF_KEY_MOBILE_DATA_SLOW2G_DISABLE = "pref_mobile_data_slow2g_disable";
+
+    public static final String PREF_KEY_NETWORK_MODE_TILE_MODE = "pref_network_mode_tile_mode";
+    public static final String EXTRA_NMT_MODE = "networkModeTileMode";
+
+    public static final String PREF_KEY_GPS_NOTIF_DISABLE = "pref_gps_notif_disable";
+
+    public static final String PREF_KEY_DISPLAY_ALLOW_ALL_ROTATIONS = "pref_display_allow_all_rotations";
+    public static final String ACTION_PREF_DISPLAY_ALLOW_ALL_ROTATIONS_CHANGED = 
+            "gravitybox.intent.action.DISPLAY_ALLOW_ALL_ROTATIONS_CHANGED";
+    public static final String EXTRA_ALLOW_ALL_ROTATIONS = "allowAllRotations";
 
     private static final List<String> rebootKeys = new ArrayList<String>(Arrays.asList(
             PREF_KEY_FIX_DATETIME_CRASH,
@@ -511,6 +544,12 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
         private SeekBarPreference mPrefNavbarWidth;
         private CheckBoxPreference mPrefNavbarMenukey;
         private CheckBoxPreference mPrefMusicVolumeSteps;
+        private AppPickerPreference[] mPrefLockscreenTargetsApp;
+        private SeekBarPreference mPrefLockscreenTargetsBottomOffset;
+        private CheckBoxPreference mPrefMobileDataSlow2gDisable;
+        private PreferenceCategory mPrefCatPhoneTelephony;
+        private PreferenceCategory mPrefCatPhoneMobileData;
+        private ListPreference mPrefNetworkModeTileMode;
 
         @SuppressWarnings("deprecation")
         @Override
@@ -636,6 +675,24 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             mPrefNavbarWidth = (SeekBarPreference) findPreference(PREF_KEY_NAVBAR_WIDTH);
             mPrefNavbarMenukey = (CheckBoxPreference) findPreference(PREF_KEY_NAVBAR_MENUKEY);
 
+            mPrefLockscreenTargetsApp = new AppPickerPreference[5];
+            for (int i=0; i<=4; i++) {
+                mPrefLockscreenTargetsApp[i] = (AppPickerPreference) findPreference(
+                        PREF_KEY_LOCKSCREEN_TARGETS_APP[i]);
+                String title = String.format(
+                        getString(R.string.pref_lockscreen_targets_app_title), (i+1));
+                mPrefLockscreenTargetsApp[i].setTitle(title);
+                mPrefLockscreenTargetsApp[i].setDialogTitle(title);
+            }
+            mPrefLockscreenTargetsBottomOffset = (SeekBarPreference) findPreference(
+                    PREF_KEY_LOCKSCREEN_TARGETS_BOTTOM_OFFSET);
+
+            mPrefCatPhoneTelephony = (PreferenceCategory) findPreference(PREF_CAT_KEY_PHONE_TELEPHONY);
+            mPrefCatPhoneMobileData = (PreferenceCategory) findPreference(PREF_CAT_KEY_PHONE_MOBILE_DATA);
+            mPrefMobileDataSlow2gDisable = (CheckBoxPreference) findPreference(PREF_KEY_MOBILE_DATA_SLOW2G_DISABLE);
+
+            mPrefNetworkModeTileMode = (ListPreference) findPreference(PREF_KEY_NETWORK_MODE_TILE_MODE);
+
             // Remove Phone specific preferences on Tablet devices
             if (sSystemProperties.isTablet) {
                 getPreferenceScreen().removePreference(mPrefCatPhone);
@@ -650,12 +707,13 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 mPrefCatStatusbar.removePreference(mPrefDisableRoamingIndicators);
                 mQuickSettings.setEntries(R.array.qs_tile_aosp_entries);
                 mQuickSettings.setEntryValues(R.array.qs_tile_aosp_values);
-                mPrefCatPhone.removePreference(mPrefRoamingWarningDisable);
+                mPrefCatPhoneTelephony.removePreference(mPrefRoamingWarningDisable);
             } else {
                 // Remove Gemini specific preferences for non-Gemini MTK devices
                 if (!sSystemProperties.hasGeminiSupport) {
                     mPrefCatStatusbar.removePreference(mSignalIconAutohide);
                     mPrefCatStatusbar.removePreference(mPrefDisableRoamingIndicators);
+                    mPrefCatPhoneMobileData.removePreference(mPrefMobileDataSlow2gDisable);
                 }
 
                 // Remove preferences not needed for ZTE V987
@@ -863,6 +921,18 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 mPrefNavbarWidth.setEnabled(override && mPrefNavbarEnable.isChecked());
                 mPrefNavbarMenukey.setEnabled(override && mPrefNavbarEnable.isChecked());
             }
+
+            if (key == null || key.equals(PREF_KEY_LOCKSCREEN_TARGETS_ENABLE)) {
+                final boolean enabled = mPrefs.getBoolean(PREF_KEY_LOCKSCREEN_TARGETS_ENABLE, false);
+                for(Preference p : mPrefLockscreenTargetsApp) {
+                    p.setEnabled(enabled);
+                }
+                mPrefLockscreenTargetsBottomOffset.setEnabled(enabled);
+            }
+
+            if (key == null || key.equals(PREF_KEY_NETWORK_MODE_TILE_MODE)) {
+                mPrefNetworkModeTileMode.setSummary(mPrefNetworkModeTileMode.getEntry());
+            }
         }
 
         @Override
@@ -900,6 +970,10 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             } else if (key.equals(PREF_KEY_STATUSBAR_BGCOLOR)) {
                 intent.setAction(ACTION_PREF_STATUSBAR_COLOR_CHANGED);
                 intent.putExtra(EXTRA_SB_BG_COLOR, prefs.getInt(PREF_KEY_STATUSBAR_BGCOLOR, Color.BLACK));
+            } else if (key.equals(PREF_KEY_STATUSBAR_COLOR_FOLLOW_STOCK_BATTERY)) {
+                intent.setAction(ACTION_PREF_STATUSBAR_COLOR_CHANGED);
+                intent.putExtra(EXTRA_SB_COLOR_FOLLOW, prefs.getBoolean(
+                        PREF_KEY_STATUSBAR_COLOR_FOLLOW_STOCK_BATTERY, false));
             } else if (key.equals(PREF_KEY_STATUSBAR_ICON_COLOR_ENABLE)) {
                 intent.setAction(ACTION_PREF_STATUSBAR_COLOR_CHANGED);
                 intent.putExtra(EXTRA_SB_ICON_COLOR_ENABLE,
@@ -1067,6 +1141,17 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             } else if (key.equals(PREF_KEY_NAVBAR_MENUKEY)) {
                 intent.setAction(ACTION_PREF_NAVBAR_CHANGED);
                 intent.putExtra(EXTRA_NAVBAR_MENUKEY, prefs.getBoolean(PREF_KEY_NAVBAR_MENUKEY, false));
+            } else if (key.equals(PREF_KEY_STATUSBAR_BRIGHTNESS)) {
+                intent.setAction(ACTION_PREF_STATUSBAR_BRIGHTNESS_CHANGED);
+                intent.putExtra(EXTRA_SB_BRIGHTNESS, prefs.getBoolean(PREF_KEY_STATUSBAR_BRIGHTNESS, false));
+            } else if (key.equals(PREF_KEY_NETWORK_MODE_TILE_MODE)) {
+                intent.setAction(ACTION_PREF_QUICKSETTINGS_CHANGED);
+                intent.putExtra(EXTRA_NMT_MODE, Integer.valueOf(
+                        prefs.getString(PREF_KEY_NETWORK_MODE_TILE_MODE, "0")));
+            } else if (key.equals(PREF_KEY_DISPLAY_ALLOW_ALL_ROTATIONS)) {
+                intent.setAction(ACTION_PREF_DISPLAY_ALLOW_ALL_ROTATIONS_CHANGED);
+                intent.putExtra(EXTRA_ALLOW_ALL_ROTATIONS, 
+                        prefs.getBoolean(PREF_KEY_DISPLAY_ALLOW_ALL_ROTATIONS, false));
             }
             if (intent.getAction() != null) {
                 getActivity().sendBroadcast(intent);

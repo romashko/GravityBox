@@ -76,6 +76,8 @@
     <string name="quick_settings_expanded_desktop_disabled">Disabled</string>
     <string name="quick_settings_expanded_desktop_normal">Normal</string>
     <string name="quick_settings_expanded_desktop_expanded">Expanded</string>
+    <string name="quick_settings_stay_awake_on">Stay awake on</string>
+    <string name="quick_settings_stay_awake_off">Stay awake off</string>
 
     <!--  QuickSettings settings -->
     <string name="quick_settings_title">Statusbar QuickSettings tiles</string>
@@ -102,6 +104,8 @@
     <string name="qs_tile_settings">Settings</string>
     <string name="qs_tile_volume">Volume</string>
     <string name="qs_tile_expanded_desktop">Expanded desktop</string>
+    <string name="qs_tile_stay_awake">Stay awake</string>
+    <string name="qs_tile_screenshot">Screenshot</string>
 
     <!-- Color Picker -->
     <string name="dialog_color_picker">Color Picker</string>
@@ -418,6 +422,7 @@
     <!-- GPS Tile (for non-MTK) -->
     <string name="qs_tile_gps_enabled">GPS on</string>
     <string name="qs_tile_gps_disabled">GPS off</string>
+    <string name="qs_tile_gps_locked">GPS locked</string>
 
     <!-- Pie control: always show menu button -->
     <string name="pie_control_menu_title">Always show menu button</string>
@@ -521,5 +526,47 @@
 
     <!-- Screenshot in power menu -->
     <string name="pref_powermenu_screenshot_title">Screenshot in power menu</string>
+
+    <!-- Lockscreen targets -->
+    <string name="pref_cat_lockscreen_targets_title">Lockscreen targets</string>
+    <string name="pref_lockscreen_targets_enable_title">Enable lockscreen targets</string>
+    <string name="pref_lockscreen_targets_enable_summary">Master switch for lockscreen targets</string>
+    <string name="pref_lockscreen_targets_app_title">Target application %s</string>
+    <string name="pref_lockscreen_targets_bottom_offset_title">Unlock ring bottom offset</string>
+
+    <!-- Statusbar brightness control -->
+    <string name="pref_statusbar_brightness_title">Enable brightness control</string>
+    <string name="pref_statusbar_brightness_summary">Adjusts brightness by sliding over statusbar</string>
+
+    <!-- Phone tweaks categories -->
+    <string name="pref_cat_phone_telephony_title">Telephony</string>
+    <string name="pref_cat_phone_messaging_title">Messaging</string>
+    <string name="pref_cat_phone_mobile_data_title">Mobile data</string>
+
+    <!-- Messaging: Strip unicode -->
+    <string name="pref_mms_unicode_stripping_title">Strip unicode</string>
+    <string name="pref_mms_unicode_stripping_summary">Converts unicode characters to normal characters. Decreases overall message size.</string>
+    <string name="unicode_stripping_leave_intact">Leave characters intact</string>
+    <string name="unicode_stripping_non_encodable">Strip non-encodable characters</string>
+    <string name="unicode_stripping_all">Strip all unicode characters</string>
+
+    <!-- Disable slow 2G data warning -->
+    <string name="pref_mobile_data_slow2g_disable_title">Disable slow 2G data warning</string>
+    <string name="pref_mobile_data_slow2g_disable_summary">Disables warning about slow data speed when turning on mobile data in QuickSettings for SIM in 2G mode</string>
+
+    <!-- Follow stock battery color -->
+    <string name="pref_sbcolor_follow_stock_battery_title">Follow stock battery color</string>
+    <string name="pref_sbcolor_follow_stock_battery_summary">Makes statusbar clock, percentage and circle battery use the color of stock battery icon. Applies when icon coloring is off.</string>
+
+    <!-- Network mode tile mode (2G/2G+3G/3G or 2G/2G+3G) -->
+    <string name="pref_network_mode_tile_mode_title">Network mode tile mode</string>
+    <string name="nm_tile_mode1">2G/2G+3G/3G</string>
+    <string name="nm_tile_mode2">2G/2G+3G</string>
+
+    <!-- Disable GPS notifications -->
+    <string name="pref_gps_notif_disable_title">Disable GPS notifications</string>
+
+    <!-- Display: allow all rotations -->
+    <string name="pref_display_allow_all_rotations_title">Allow all rotations</string>
 
 </resources>

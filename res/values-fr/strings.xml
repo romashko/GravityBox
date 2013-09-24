@@ -76,6 +76,8 @@
     <string name="quick_settings_expanded_desktop_disabled">Désactivé</string>
     <string name="quick_settings_expanded_desktop_normal">Normal</string>
     <string name="quick_settings_expanded_desktop_expanded">Étendu</string>
+    <string name="quick_settings_stay_awake_on">Rester allumé on</string>
+    <string name="quick_settings_stay_awake_off">Rester allumé off</string>
 
     <!--  QuickSettings settings -->
     <string name="quick_settings_title">Touches des paramètres rapides</string>
@@ -102,6 +104,8 @@
     <string name="qs_tile_settings">Réglages</string>
     <string name="qs_tile_volume">Volume</string>
     <string name="qs_tile_expanded_desktop">Bureau étendu</string>
+    <string name="qs_tile_stay_awake">Rester allumé</string>
+    <string name="qs_tile_screenshot">Capture d\'écran</string>
 
     <!-- Color Picker -->
     <string name="dialog_color_picker">Sélecteur de couleur</string>
@@ -418,7 +422,8 @@
     <!-- GPS Tile (for non-MTK) -->
     <string name="qs_tile_gps_enabled">GPS on</string>
     <string name="qs_tile_gps_disabled">GPS off</string>
-    
+    <string name="qs_tile_gps_locked">GPS connecté</string>    
+
     <!-- Pie control: always show menu button -->
     <string name="pie_control_menu_title">Toujours afficher le bouton menu</string>
 
@@ -518,5 +523,50 @@
     <string name="pref_navbar_width_title">Largeur barre de navigation</string>
     <string name="pref_navbar_width_summary">Valable pour l\'orientation paysage</string>
     <string name="pref_navbar_menukey_title">Toujours afficher la touche menu</string>
+
+    <!-- Screenshot in power menu -->
+    <string name="pref_powermenu_screenshot_title">Capture d\'écran dans le menu d\'extinction</string>
+
+    <!-- Lockscreen targets -->
+    <string name="pref_cat_lockscreen_targets_title">Cibles de l\'écran de déverrouillage</string>
+    <string name="pref_lockscreen_targets_enable_title">Activer les cibles de l\'écran de déverrouillage</string>
+    <string name="pref_lockscreen_targets_enable_summary">Interrupteur général pour les cibles de l\'écran de déverrouillage</string>
+    <string name="pref_lockscreen_targets_app_title">Application cible %s</string>
+    <string name="pref_lockscreen_targets_bottom_offset_title">Marge inférieure anneau de déverrouillage</string>
+
+    <!-- Statusbar brightness control -->
+    <string name="pref_statusbar_brightness_title">Activer le contrôle de la luminosité</string>
+    <string name="pref_statusbar_brightness_summary">Ajuste la luminosité en glissant le doigt sur la barre de statut</string>
+
+    <!-- Phone tweaks categories -->
+    <string name="pref_cat_phone_telephony_title">Téléphonie</string>
+    <string name="pref_cat_phone_messaging_title">Messagerie</string>
+    <string name="pref_cat_phone_mobile_data_title">Données mobile</string>
+
+    <!-- Messaging: Strip unicode -->
+    <string name="pref_mms_unicode_stripping_title">Alléger unicode</string>
+    <string name="pref_mms_unicode_stripping_summary">Convertit les caractères unicode en caractères normaux. Réduit la taille globale du message</string>
+    <string name="unicode_stripping_leave_intact">Laisser les caractères tels quels</string>
+    <string name="unicode_stripping_non_encodable">Alléger les caractères non-encodables</string>
+    <string name="unicode_stripping_all">Alléger tous les caractères unicode</string>
+
+    <!-- Disable slow 2G data warning -->
+    <string name="pref_mobile_data_slow2g_disable_title">Désactiver l\'avertissement faible débit 2G</string>
+    <string name="pref_mobile_data_slow2g_disable_summary">Désactive l\'avertissement lié au faible débit des données lorsque l\'on active les données mobile dans les paramètres rapides de SIM en mode 2G</string>
+
+    <!-- Follow stock battery color -->
+    <string name="pref_sbcolor_follow_stock_battery_title">Adopter la couleur de batterie d\'origine</string>
+    <string name="pref_sbcolor_follow_stock_battery_summary">Permet d\'utiliser la couleur de l\'icône de la batterie d\'origine dans la barre de statut pour l\'horloge, la batterie circulaire et le pourcentage. Valable lorsque la coloration personnalisée des icônes est désactivée</string>
+
+    <!-- Network mode tile mode (2G/2G+3G/3G or 2G/2G+3G) -->
+    <string name="pref_network_mode_tile_mode_title">Modalités touche mode réseau</string>
+    <string name="nm_tile_mode1">2G/2G+3G/3G</string>
+    <string name="nm_tile_mode2">2G/2G+3G</string>
+
+    <!-- Disable GPS notifications -->
+    <string name="pref_gps_notif_disable_title">Désactiver les notifications du GPS</string>
+
+    <!-- Display: allow all rotations -->
+    <string name="pref_display_allow_all_rotations_title">Permettre toutes les rotations</string>
 
 </resources>

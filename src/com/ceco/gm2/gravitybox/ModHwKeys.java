@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ResolveInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.hardware.input.InputManager;
 import android.os.Build;
@@ -44,6 +43,7 @@ public class ModHwKeys {
 
     private static final int FLAG_WAKE = 0x00000001;
     private static final int FLAG_WAKE_DROPPED = 0x00000002;
+    public static final String ACTION_SCREENSHOT = "gravitybox.intent.action.SCREENSHOT";
 
     private static final String SEPARATOR = "#C3C0#";
 
@@ -124,6 +124,15 @@ public class ModHwKeys {
             } else if (action.equals(GravityBoxSettings.ACTION_PREF_PIE_CHANGED) && 
                     intent.hasExtra(GravityBoxSettings.EXTRA_PIE_HWKEYS_DISABLE)) {
                 mHwKeysEnabled = !intent.getBooleanExtra(GravityBoxSettings.EXTRA_PIE_HWKEYS_DISABLE, false);
+            } else if (action.equals(ACTION_SCREENSHOT) && mPhoneWindowManager != null) {
+                XposedHelpers.callMethod(mPhoneWindowManager, "takeScreenshot");
+            } else if (action.equals(GravityBoxSettings.ACTION_PREF_DISPLAY_ALLOW_ALL_ROTATIONS_CHANGED)) {
+                final boolean allowAllRotations = intent.getBooleanExtra(
+                        GravityBoxSettings.EXTRA_ALLOW_ALL_ROTATIONS, false);
+                if (mPhoneWindowManager != null) {
+                    XposedHelpers.setIntField(mPhoneWindowManager, "mAllowAllRotations",
+                            allowAllRotations ? 1 : 0);
+                }
             }
         }
     };
@@ -313,7 +322,9 @@ public class ModHwKeys {
             mPhoneWindowManager = param.thisObject;
             mContext = (Context) XposedHelpers.getObjectField(mPhoneWindowManager, "mContext");
             mGbContext = mContext.createPackageContext(GravityBox.PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY);
-    
+            XposedHelpers.setIntField(mPhoneWindowManager, "mAllowAllRotations", 
+                    mPrefs.getBoolean(GravityBoxSettings.PREF_KEY_DISPLAY_ALLOW_ALL_ROTATIONS, false) ? 1 : 0);
+
             Resources res = mGbContext.getResources();
             mStrAppKilled = res.getString(R.string.app_killed);
             mStrNothingToKill = res.getString(R.string.nothing_to_kill);
@@ -331,8 +342,10 @@ public class ModHwKeys {
             intentFilter.addAction(GravityBoxSettings.ACTION_PREF_HWKEY_KILL_DELAY_CHANGED);
             intentFilter.addAction(GravityBoxSettings.ACTION_PREF_VOLUME_ROCKER_WAKE_CHANGED);
             intentFilter.addAction(GravityBoxSettings.ACTION_PREF_PIE_CHANGED);
+            intentFilter.addAction(ACTION_SCREENSHOT);
+            intentFilter.addAction(GravityBoxSettings.ACTION_PREF_DISPLAY_ALLOW_ALL_ROTATIONS_CHANGED);
             mContext.registerReceiver(mBroadcastReceiver, intentFilter);
-    
+
             log("Phone window manager initialized");
         }
     };

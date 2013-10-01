@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.ceco.gm2.gravitybox;
 
 import android.os.Build;
@@ -20,17 +35,17 @@ public class GravityBox implements IXposedHookZygoteInit, IXposedHookInitPackage
         prefs = new XSharedPreferences(PACKAGE_NAME);
         prefs.makeWorldReadable();
 
-        XposedBridge.log("Hardware: " + Build.HARDWARE);
-        XposedBridge.log("Product: " + Build.PRODUCT);
-        XposedBridge.log("Device manufacturer: " + Build.MANUFACTURER);
-        XposedBridge.log("Device brand: " + Build.BRAND);
-        XposedBridge.log("Device model: " + Build.MODEL);
-        XposedBridge.log("Device type: " + (Utils.isTablet() ? "tablet" : "phone"));
-        XposedBridge.log("Is MTK device: " + Utils.isMtkDevice());
-        XposedBridge.log("Has Gemini support: " + Utils.hasGeminiSupport());
-        XposedBridge.log("Android SDK: " + Build.VERSION.SDK_INT);
-        XposedBridge.log("Android Release: " + Build.VERSION.RELEASE);
-        XposedBridge.log("ROM: " + Build.DISPLAY);
+        XposedBridge.log("GB:Hardware: " + Build.HARDWARE);
+        XposedBridge.log("GB:Product: " + Build.PRODUCT);
+        XposedBridge.log("GB:Device manufacturer: " + Build.MANUFACTURER);
+        XposedBridge.log("GB:Device brand: " + Build.BRAND);
+        XposedBridge.log("GB:Device model: " + Build.MODEL);
+        XposedBridge.log("GB:Device type: " + (Utils.isTablet() ? "tablet" : "phone"));
+        XposedBridge.log("GB:Is MTK device: " + Utils.isMtkDevice());
+        XposedBridge.log("GB:Has Gemini support: " + Utils.hasGeminiSupport());
+        XposedBridge.log("GB:Android SDK: " + Build.VERSION.SDK_INT);
+        XposedBridge.log("GB:Android Release: " + Build.VERSION.RELEASE);
+        XposedBridge.log("GB:ROM: " + Build.DISPLAY);
 
         SystemWideResources.initResources(prefs);
 
@@ -143,7 +158,8 @@ public class GravityBox implements IXposedHookZygoteInit, IXposedHookInitPackage
                 ModCellConnService.init(prefs, lpparam.classLoader);
             }
 
-            if (Utils.hasGeminiSupport()
+            if (Build.VERSION.SDK_INT > 16
+                    && Utils.hasGeminiSupport()
                     && lpparam.packageName.equals(ModMtkToolbar.PACKAGE_NAME)) {
                 ModMtkToolbar.init(prefs, lpparam.classLoader);
             }

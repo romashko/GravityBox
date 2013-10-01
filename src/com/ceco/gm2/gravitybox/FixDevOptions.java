@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.ceco.gm2.gravitybox;
 
 import java.util.ArrayList;
@@ -18,12 +33,12 @@ import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 
 public class FixDevOptions {
-    private static final String TAG = "FixDevOptions";
+    private static final String TAG = "GB:FixDevOptions";
     public static final String PACKAGE_NAME = "com.android.settings";
     private static final String CLASS_PREF_GROUP = "android.preference.PreferenceGroup";
     private static final String CLASS_PREF_FRAGMENT = "android.preference.PreferenceFragment";
     private static final String CLASS_DEV_SETTINGS = "com.android.settings.DevelopmentSettings";
-    
+    private static final boolean DEBUG = false;
 
     private static PreferenceScreen mScreen;
     private static int mResId = 0;
@@ -45,20 +60,20 @@ public class FixDevOptions {
             final Class<?> pgClass = XposedHelpers.findClass(CLASS_PREF_GROUP, null);
             final Class<?> pfClass = XposedHelpers.findClass(CLASS_PREF_FRAGMENT, null);
 
-            log("hooking PreferenceFragment.addPreferencesFromResource method");
+            if (DEBUG) log("hooking PreferenceFragment.addPreferencesFromResource method");
             XposedHelpers.findAndHookMethod(pfClass, "addPreferencesFromResource", int.class, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     if (mResId == 0) return;
 
                     if (mResId == (Integer)param.args[0]) {
-                        log("addPreferencesFromResource called from dev settings. Setting mScreen.");
+                        if (DEBUG) log("addPreferencesFromResource called from dev settings. Setting mScreen.");
                         mScreen = ((PreferenceFragment) param.thisObject).getPreferenceScreen();
                     }
                 }
             });
 
-            log("hooking PreferenceGroup.removePreference method");
+            if (DEBUG) log("hooking PreferenceGroup.removePreference method");
             XposedHelpers.findAndHookMethod(pgClass, "removePreference", Preference.class, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -66,7 +81,7 @@ public class FixDevOptions {
                     if (pg != null && pg == mScreen) {
                         String prefKey = ((Preference)param.args[0]).getKey();
                         if (devOptKeys.contains(prefKey)) {
-                            log("ignoring removePreference called from developer options; key=" + prefKey);
+                            if (DEBUG) log("ignoring removePreference called from developer options; key=" + prefKey);
                             param.setResult(false);
                             return;
                         }
@@ -102,13 +117,13 @@ public class FixDevOptions {
         try {
             final Class<?> classDevSettings = XposedHelpers.findClass(CLASS_DEV_SETTINGS, classLoader);
 
-            log("hooking DeveloperSettings.onCreate method");
+            if (DEBUG) log("hooking DeveloperSettings.onCreate method");
             XposedHelpers.findAndHookMethod(classDevSettings, "onCreate", Bundle.class, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                     PreferenceFragment pf = (PreferenceFragment) param.thisObject;
                     mResId = pf.getResources().getIdentifier("development_prefs", "xml", PACKAGE_NAME);
-                    log("mResId=" + mResId);
+                    if (DEBUG) log("mResId=" + mResId);
                 }
             });
         }

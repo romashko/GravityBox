@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2013 The CyanogenMod Project (Jens Doll)
+ * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+ * This code is loosely based on portions of the ParanoidAndroid Project source, Copyright (C) 2012.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package com.ceco.gm2.gravitybox;
 
 import android.content.BroadcastReceiver;
@@ -28,7 +46,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class ModPieControls {
-    private static final String TAG = "ModPieController";
+    private static final String TAG = "GB:ModPieController";
     public static final String PACKAGE_NAME = "com.android.systemui";
     private static final boolean DEBUG = false;
     private static final boolean DEBUG_INPUT = false;
@@ -72,7 +90,7 @@ public class ModPieControls {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            log("Broadcast received: " + intent.toString());
+            if (DEBUG) log("Broadcast received: " + intent.toString());
             ContentResolver cr = mContext.getContentResolver();
             if (intent.getAction().equals(GravityBoxSettings.ACTION_PREF_PIE_CHANGED)) {
                 if (intent.hasExtra(GravityBoxSettings.EXTRA_PIE_ENABLE)) {
@@ -207,7 +225,7 @@ public class ModPieControls {
 
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    log("BaseStatusBar starting...");
+                    if (DEBUG) log("BaseStatusBar starting...");
                     mContext = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
                     mGbContext = mContext.createPackageContext(GravityBox.PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY);
                     mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
@@ -300,7 +318,7 @@ public class ModPieControls {
 
         @Override
         public void onChange(boolean selfChange) {
-            log("PieSettingsObserver onChange()");
+            if (DEBUG) log("PieSettingsObserver onChange()");
             mPieTriggerSlots = Settings.System.getInt(mContext.getContentResolver(),
                     SETTING_PIE_GRAVITY, Position.BOTTOM.FLAG);
 

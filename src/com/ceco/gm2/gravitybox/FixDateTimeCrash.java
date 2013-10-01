@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.ceco.gm2.gravitybox;
 
 import java.util.Date;
@@ -9,12 +24,13 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class FixDateTimeCrash {
-    private static final String TAG = "FixDateTimeCrash";
+    private static final String TAG = "GB:FixDateTimeCrash";
     public static final String PACKAGE_NAME = "com.android.settings";
     public static final String CLASS_DATETIME_SETTINGS = "com.android.settings.DateTimeSettings";
+    private static final boolean DEBUG = false;
 
     public static void init (final XSharedPreferences prefs, final ClassLoader classLoader) {
-        XposedBridge.log(TAG + ": init");
+        if (DEBUG) XposedBridge.log(TAG + ": init");
 
         try {
             Class<?> dtSettingsClass = XposedHelpers.findClass(CLASS_DATETIME_SETTINGS, classLoader);
@@ -26,7 +42,7 @@ public class FixDateTimeCrash {
                         protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
                             // Similar to new SimpleDateFormat("'GMT'Z, zzzz").format(new Date()), but
                             // we want "GMT-03:00" rather than "GMT-0300".
-                            XposedBridge.log(TAG + ": running replaced getTimeZoneText() method");
+                            if (DEBUG) XposedBridge.log(TAG + ": running replaced getTimeZoneText() method");
                             TimeZone tz = (TimeZone) param.args[0];
                             Date now = new Date();
                             return formatOffset(new StringBuilder(), tz, now).

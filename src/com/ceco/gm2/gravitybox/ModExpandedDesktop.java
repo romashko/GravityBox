@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.ceco.gm2.gravitybox;
 
 import android.content.BroadcastReceiver;
@@ -41,6 +56,7 @@ public class ModExpandedDesktop {
     private static Unhook mStatusbarShowLwHook;
     private static boolean mNavbarOverride;
     private static float mNavbarHeightScaleFactor = 1;
+    private static float mNavbarHeightLandscapeScaleFactor = 1;
     private static float mNavbarWidthScaleFactor = 1;
 
     public static final String SETTING_EXPANDED_DESKTOP_STATE = "gravitybox_expanded_desktop_state";
@@ -88,6 +104,10 @@ public class ModExpandedDesktop {
                 if (intent.hasExtra(GravityBoxSettings.EXTRA_NAVBAR_HEIGHT)) {
                     mNavbarHeightScaleFactor = 
                             (float)intent.getIntExtra(GravityBoxSettings.EXTRA_NAVBAR_HEIGHT, 100) / 100f;
+                }
+                if (intent.hasExtra(GravityBoxSettings.EXTRA_NAVBAR_HEIGHT_LANDSCAPE)) {
+                    mNavbarHeightLandscapeScaleFactor = (float)intent.getIntExtra(
+                                    GravityBoxSettings.EXTRA_NAVBAR_HEIGHT_LANDSCAPE,  100) / 100f;
                 }
                 if (intent.hasExtra(GravityBoxSettings.EXTRA_NAVBAR_WIDTH)) {
                     mNavbarWidthScaleFactor = 
@@ -161,7 +181,7 @@ public class ModExpandedDesktop {
                 navigationBarHeightForRotation[landscapeRotation] =
                 navigationBarHeightForRotation[seascapeRotation] =
                     (int) (mContext.getResources().getDimensionPixelSize(resHeightLandscapeId)
-                    * mNavbarHeightScaleFactor);
+                    * mNavbarHeightLandscapeScaleFactor);
 
                 navigationBarWidthForRotation[portraitRotation] =
                 navigationBarWidthForRotation[upsideDownRotation] =
@@ -191,6 +211,8 @@ public class ModExpandedDesktop {
             if (mNavbarOverride) {
                 mNavbarHeightScaleFactor = 
                         (float) prefs.getInt(GravityBoxSettings.PREF_KEY_NAVBAR_HEIGHT, 100) / 100f;
+                mNavbarHeightLandscapeScaleFactor = 
+                        (float) prefs.getInt(GravityBoxSettings.PREF_KEY_NAVBAR_HEIGHT_LANDSCAPE, 100) / 100f;
                 mNavbarWidthScaleFactor = 
                         (float) prefs.getInt(GravityBoxSettings.PREF_KEY_NAVBAR_WIDTH, 100) / 100f;
             }

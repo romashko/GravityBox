@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.ceco.gm2.gravitybox;
 
 import java.util.List;
@@ -32,7 +47,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XCallback;
 
 public class ModHwKeys {
-    private static final String TAG = "ModHwKeys";
+    private static final String TAG = "GB:ModHwKeys";
     private static final String CLASS_PHONE_WINDOW_MANAGER = "com.android.internal.policy.impl.PhoneWindowManager";
     private static final String CLASS_ACTIVITY_MANAGER_NATIVE = "android.app.ActivityManagerNative";
     private static final String CLASS_WINDOW_STATE = "android.view.WindowManagerPolicy$WindowState";
@@ -44,6 +59,7 @@ public class ModHwKeys {
     private static final int FLAG_WAKE = 0x00000001;
     private static final int FLAG_WAKE_DROPPED = 0x00000002;
     public static final String ACTION_SCREENSHOT = "gravitybox.intent.action.SCREENSHOT";
+    public static final String ACTION_SHOW_POWER_MENU = "gravitybox.intent.action.SHOW_POWER_MENU";
 
     private static final String SEPARATOR = "#C3C0#";
 
@@ -91,7 +107,7 @@ public class ModHwKeys {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            log("Broadcast received: " + intent.toString());
+            if (DEBUG) log("Broadcast received: " + intent.toString());
 
             String action = intent.getAction();
             int value = GravityBoxSettings.HWKEY_ACTION_DEFAULT;
@@ -101,26 +117,26 @@ public class ModHwKeys {
 
             if (action.equals(GravityBoxSettings.ACTION_PREF_HWKEY_MENU_LONGPRESS_CHANGED)) {
                 mMenuLongpressAction = value;
-                log("Menu long-press action set to: " + value);
+                if (DEBUG) log("Menu long-press action set to: " + value);
             } else if (action.equals(GravityBoxSettings.ACTION_PREF_HWKEY_MENU_DOUBLETAP_CHANGED)) {
                 mMenuDoubletapAction = value;
-                log("Menu double-tap action set to: " + value);
+                if (DEBUG) log("Menu double-tap action set to: " + value);
             } else if (action.equals(GravityBoxSettings.ACTION_PREF_HWKEY_HOME_LONGPRESS_CHANGED)) {
                 mHomeLongpressAction = value;
-                log("Home long-press action set to: " + value);
+                if (DEBUG) log("Home long-press action set to: " + value);
             } else if (action.equals(GravityBoxSettings.ACTION_PREF_HWKEY_BACK_LONGPRESS_CHANGED)) {
                 mBackLongpressAction = value;
-                log("Back long-press action set to: " + value);
+                if (DEBUG) log("Back long-press action set to: " + value);
             } else if (action.equals(GravityBoxSettings.ACTION_PREF_HWKEY_DOUBLETAP_SPEED_CHANGED)) {
                 mDoubletapSpeed = value;
-                log("Doubletap speed set to: " + value);
+                if (DEBUG) log("Doubletap speed set to: " + value);
             } else if (action.equals(GravityBoxSettings.ACTION_PREF_HWKEY_KILL_DELAY_CHANGED)) {
                 mKillDelay = value;
-                log("Kill delay set to: " + value);
+                if (DEBUG) log("Kill delay set to: " + value);
             } else if (action.equals(GravityBoxSettings.ACTION_PREF_VOLUME_ROCKER_WAKE_CHANGED)) {
                 mVolumeRockerWakeDisabled = intent.getBooleanExtra(
                         GravityBoxSettings.EXTRA_VOLUME_ROCKER_WAKE_DISABLE, false);
-                log("mVolumeRockerWakeDisabled set to: " + mVolumeRockerWakeDisabled);
+                if (DEBUG) log("mVolumeRockerWakeDisabled set to: " + mVolumeRockerWakeDisabled);
             } else if (action.equals(GravityBoxSettings.ACTION_PREF_PIE_CHANGED) && 
                     intent.hasExtra(GravityBoxSettings.EXTRA_PIE_HWKEYS_DISABLE)) {
                 mHwKeysEnabled = !intent.getBooleanExtra(GravityBoxSettings.EXTRA_PIE_HWKEYS_DISABLE, false);
@@ -133,6 +149,8 @@ public class ModHwKeys {
                     XposedHelpers.setIntField(mPhoneWindowManager, "mAllowAllRotations",
                             allowAllRotations ? 1 : 0);
                 }
+            } else if (action.equals(ACTION_SHOW_POWER_MENU) && mPhoneWindowManager != null) {
+                XposedHelpers.callMethod(mPhoneWindowManager, "showGlobalActionsDialog");
             }
         }
     };
@@ -343,10 +361,11 @@ public class ModHwKeys {
             intentFilter.addAction(GravityBoxSettings.ACTION_PREF_VOLUME_ROCKER_WAKE_CHANGED);
             intentFilter.addAction(GravityBoxSettings.ACTION_PREF_PIE_CHANGED);
             intentFilter.addAction(ACTION_SCREENSHOT);
+            intentFilter.addAction(ACTION_SHOW_POWER_MENU);
             intentFilter.addAction(GravityBoxSettings.ACTION_PREF_DISPLAY_ALLOW_ALL_ROTATIONS_CHANGED);
             mContext.registerReceiver(mBroadcastReceiver, intentFilter);
 
-            log("Phone window manager initialized");
+            if (DEBUG) log("Phone window manager initialized");
         }
     };
 
@@ -493,7 +512,7 @@ public class ModHwKeys {
                                     !appInfo.processName.equals("com.android.systemui") &&
                                     !appInfo.processName.equals("com.mediatek.bluetooth") &&
                                     !appInfo.processName.equals(defaultHomePackage)) {  
-                                log("Killing process ID " + appInfo.pid + ": " + appInfo.processName);
+                                if (DEBUG) log("Killing process ID " + appInfo.pid + ": " + appInfo.processName);
                                 Process.killProcess(appInfo.pid);
                                 targetKilled = true;
                                 break;

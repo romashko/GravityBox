@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013 The CyanogenMod Project
- * Copyright (C) 2013 GravityBox project (C3C076@xda)
+ * Copyright (C) 2013 Peter Gregus for GravityBox project (C3C076@xda)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -51,7 +51,7 @@ import java.util.List;
  * (It handles the events for the snap points, too.)
  */
 public class PieLayout extends FrameLayout implements View.OnTouchListener {
-    public static final String TAG = "PieLayout";
+    public static final String TAG = "GB:PieLayout";
     public static final boolean DEBUG = false;
     public static final boolean DEBUG_INPUT = false;
 

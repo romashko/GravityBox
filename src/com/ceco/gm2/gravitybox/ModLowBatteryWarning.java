@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.ceco.gm2.gravitybox;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
@@ -11,7 +26,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class ModLowBatteryWarning {
-    private static final String TAG = "ModLowBatteryWarning";
+    private static final String TAG = "GB:ModLowBatteryWarning";
     public static final String PACKAGE_NAME = "com.android.systemui";
     private static final String CLASS_POWER_UI = "com.android.systemui.power.PowerUI";
     private static final String CLASS_LIGHT_SERVICE_LIGHT = "com.android.server.LightsService$Light";
@@ -25,7 +40,7 @@ public class ModLowBatteryWarning {
     }
 
     public static void initZygote(final XSharedPreferences prefs) {
-        log("initZygote");
+        if (DEBUG) log("initZygote");
         try {
             final Class<?> lightServiceClass = XposedHelpers.findClass(CLASS_LIGHT_SERVICE_LIGHT, null);
             final Class<?> batteryServiceClass = XposedHelpers.findClass(CLASS_BATTERY_SERVICE_LED, null);
@@ -93,7 +108,7 @@ public class ModLowBatteryWarning {
 
     static void init(final XSharedPreferences prefs, ClassLoader classLoader) {
         try {
-            log("init");
+            if (DEBUG) log("init");
 
             Class<?> classPowerUI = findClass(CLASS_POWER_UI, classLoader);
 
@@ -118,7 +133,7 @@ public class ModLowBatteryWarning {
                             prefs.getString(GravityBoxSettings.PREF_KEY_LOW_BATTERY_WARNING_POLICY, "3"));
                     final boolean playSound = ((batteryWarningPolicy & GravityBoxSettings.BATTERY_WARNING_SOUND) != 0);
 
-                    log("playLowBatterySound called; playSound = " + playSound);
+                    if (DEBUG) log("playLowBatterySound called; playSound = " + playSound);
                     
                     if (!playSound)
                         param.setResult(null);
@@ -135,7 +150,7 @@ public class ModLowBatteryWarning {
                             prefs.getString(GravityBoxSettings.PREF_KEY_LOW_BATTERY_WARNING_POLICY, "3"));
                     final boolean showPopup = ((batteryWarningPolicy & GravityBoxSettings.BATTERY_WARNING_POPUP) != 0);
                     
-                    log("showLowBatteryWarning called; showPopup = " + showPopup);
+                    if (DEBUG) log("showLowBatteryWarning called; showPopup = " + showPopup);
 
                     if (!showPopup)
                         param.setResult(null);

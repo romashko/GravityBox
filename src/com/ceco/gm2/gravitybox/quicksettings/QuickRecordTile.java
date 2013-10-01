@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.ceco.gm2.gravitybox.quicksettings;
 
 import java.io.File;
@@ -22,7 +37,8 @@ import android.view.View;
 import android.widget.TextView;
 
 public class QuickRecordTile extends AQuickSettingsTile {
-    private static final String TAG = "QuickRecordTile";
+    private static final String TAG = "GB:QuickRecordTile";
+    private static final boolean DEBUG = false;
 
     private static final int STATE_IDLE = 0;
     private static final int STATE_PLAYING = 1;
@@ -48,7 +64,7 @@ public class QuickRecordTile extends AQuickSettingsTile {
                     intent.hasExtra(RecordingService.EXTRA_RECORDING_STATUS)) {
                 int recordingStatus = intent.getIntExtra(
                         RecordingService.EXTRA_RECORDING_STATUS, RecordingService.RECORDING_STATUS_IDLE);
-                log("Broadcast received: recordingStatus = " + recordingStatus);
+                if (DEBUG) log("Broadcast received: recordingStatus = " + recordingStatus);
                 switch (recordingStatus) {
                     case RecordingService.RECORDING_STATUS_IDLE:
                         mRecordingState = STATE_IDLE;
@@ -57,12 +73,12 @@ public class QuickRecordTile extends AQuickSettingsTile {
                     case RecordingService.RECORDING_STATUS_STARTED:
                         mRecordingState = STATE_RECORDING;
                         mHandler.postDelayed(autoStopRecord, 3600000);
-                        log("Audio recording started");
+                        if (DEBUG) log("Audio recording started");
                         break;
                     case RecordingService.RECORDING_STATUS_STOPPED:
                         mRecordingState = STATE_JUST_RECORDED;
                         mHandler.removeCallbacks(autoStopRecord);
-                        log("Audio recording stopped");
+                        if (DEBUG) log("Audio recording stopped");
                         break;
                     case RecordingService.RECORDING_STATUS_ERROR:
                     default:

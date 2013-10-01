@@ -1,8 +1,24 @@
+/*
+ * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.ceco.gm2.gravitybox;
 
 import de.robv.android.xposed.XposedBridge;
 import android.content.Context;
 import android.os.Build;
+import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import java.util.*;
@@ -10,6 +26,8 @@ import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 
 public class Utils {
+    private static final String TAG = "GB:Utils";
+    private static final boolean DEBUG = false;
 
     // Device types
     private static final int DEVICE_PHONE = 0;
@@ -20,12 +38,17 @@ public class Utils {
     private static int mDeviceType = -1;
     private static Boolean mIsMtkDevice = null;
     private static Boolean mHasGeminiSupport = null;
+    private static Boolean mHasTelephonySupport = null;
     private static String mDeviceCharacteristics = null;
 
     // Supported MTK devices
     private static final Set<String> MTK_DEVICES = new HashSet<String>(Arrays.asList(
         new String[] {"mt6575","mt6577","mt6589","mt8389"}
     ));
+
+    private static void log(String message) {
+        XposedBridge.log(TAG + ": " + message);
+    }
 
     private static int getScreenType(Context con) {
         if (mDeviceType == -1) {
@@ -86,6 +109,15 @@ public class Utils {
         return mHasGeminiSupport;
     }
 
+    public static boolean hasTelephonySupport(Context con) {
+        // returns false if device has no phone radio (no telephony support)
+        if (mHasTelephonySupport != null) return mHasTelephonySupport;
+
+        TelephonyManager manager = (TelephonyManager) con.getSystemService(Context.TELEPHONY_SERVICE);
+        mHasTelephonySupport = (manager.getPhoneType() != TelephonyManager.PHONE_TYPE_NONE);
+        return mHasTelephonySupport;
+    }
+
     public static String getDeviceCharacteristics() {
         if (mDeviceCharacteristics != null) return mDeviceCharacteristics;
 
@@ -114,7 +146,7 @@ public class Utils {
                 Class<?> classSystemProperties = findClass("android.os.SystemProperties", null);
                 ret = (String) callStaticMethod(classSystemProperties, "get", key);
             } catch (Throwable t) {
-                XposedBridge.log("Utils: SystemProp.get failed: " + t.getMessage());
+                log("SystemProp.get failed: " + t.getMessage());
                 ret = null;
             }
             return ret;
@@ -131,7 +163,7 @@ public class Utils {
                 Class<?> classSystemProperties = findClass("android.os.SystemProperties", null);
                 ret = (String) callStaticMethod(classSystemProperties, "get", key, def);
             } catch (Throwable t) {
-                XposedBridge.log("Utils: SystemProp.get failed: " + t.getMessage());
+                log("SystemProp.get failed: " + t.getMessage());
                 ret = def;
             }
             return ret;
@@ -148,7 +180,7 @@ public class Utils {
                 Class<?> classSystemProperties = findClass("android.os.SystemProperties", null);
                 ret = (Integer) callStaticMethod(classSystemProperties, "getInt", key, def);
             } catch (Throwable t) {
-                XposedBridge.log("Utils: SystemProp.getInt failed: " + t.getMessage());
+                log("SystemProp.getInt failed: " + t.getMessage());
                 ret = def;
             }
             return ret;
@@ -165,7 +197,7 @@ public class Utils {
                 Class<?> classSystemProperties = findClass("android.os.SystemProperties", null);
                 ret = (Long) callStaticMethod(classSystemProperties, "getLong", key, def);
             } catch (Throwable t) {
-                XposedBridge.log("Utils: SystemProp.getLong failed: " + t.getMessage());
+                log("SystemProp.getLong failed: " + t.getMessage());
                 ret = def;
             }
             return ret;
@@ -185,7 +217,7 @@ public class Utils {
                 Class<?> classSystemProperties = findClass("android.os.SystemProperties", null);
                 ret = (Boolean) callStaticMethod(classSystemProperties, "getBoolean", key, def);
             } catch (Throwable t) {
-                XposedBridge.log("Utils: SystemProp.getBoolean failed: " + t.getMessage());
+                log("SystemProp.getBoolean failed: " + t.getMessage());
                 ret = def;
             }
             return ret;

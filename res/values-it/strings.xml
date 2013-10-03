@@ -516,15 +516,15 @@
     <string name="pref_powermenu_screenshot_title">Abilita Fotografa schermo nel menu apegnimento</string>
 
     <!-- Unlock ring settings -->
-    <string name="pref_cat_lockscreen_ring_settings_title">Applicazioni in Lockscreen</string>
-    <string name="pref_lockscreen_ring_targets_enable_title">Abilita app in lockscreen</string>
-    <string name="pref_lockscreen_ring_targets_enable_summary">Attivazione Applicazioni in Lockscreen</string>
+    <string name="pref_cat_lockscreen_ring_settings_title">Applicazioni in Sblocco schermo</string>
+    <string name="pref_lockscreen_ring_targets_enable_title">Abilita app in sblocco schermo</string>
+    <string name="pref_lockscreen_ring_targets_enable_summary">Attivazione Applicazioni in sblocco schermo</string>
     <string name="pref_lockscreen_ring_targets_app_title">Applicazione %s</string>
     <string name="pref_lockscreen_ring_vertical_offset_title">Scostamento dell\'anello di sblocco, margine inferiore</string>
 
     <!-- Statusbar brightness control -->
     <string name="pref_statusbar_brightness_title">Abilita controllo luminosità</string>
-    <string name="pref_statusbar_brightness_summary">Adjusts brightness by sliding over statusbar</string>
+    <string name="pref_statusbar_brightness_summary">Modifica luminosità scorrendo sopra la barra di stato</string>
 
     <!-- Phone tweaks categories -->
     <string name="pref_cat_phone_telephony_title">Telefonate</string>
@@ -546,7 +546,7 @@
     <string name="pref_sbcolor_follow_stock_battery_summary">Imposta colore dell\'orologio nella barra di stato, percentuale, e icona batteria come quello dell\'icona stock. Attivabile se impostazioni colore icone è spento.</string>
 
     <!-- Network mode tile mode (2G/2G+3G/3G or 2G/2G+3G) -->
-    <string name="pref_network_mode_tile_mode_title">Modalità attivazione reti nel relativo tile dei quicksetting</string>
+    <string name="pref_network_mode_tile_mode_title">Modalità attivazione reti nella relativa icona dei quicksetting</string>
     <string name="nm_tile_mode1">2G/2G+3G/3G</string>
     <string name="nm_tile_mode2">2G/2G+3G</string>
 
@@ -576,6 +576,24 @@
     <string name="pref_statusbar_color_skip_battery_title">Lascia icona batteria stock inalterata</string>
     <string name="pref_statusbar_color_skip_battery_summary">Usa nel caso in cui l\'icona batteria stock sia stata sostituita da app alternative</string>
 
+    <!-- Unplug turns on screen -->
+    <string name="pref_unplug_turns_on_screen_title">Scollega cavo fa accendere lo schermo</string>
+    <string name="pref_unplug_turns_on_screen_summary">Se abilitato, lo schermo si illuminerà ad ogni operazione di collega/discollega cavo usb (richiede riavvio)</string>
+
+    <!-- Mute volume adjust sound -->
+    <string name="pref_volume_adjust_mute_title">Mute volume adjust sound</string>
+    <string name="pref_volume_adjust_mute_summary">Disables sound played when adjusting volume using volume keys</string>
+
+    <!-- Call vibrations -->
+    <string name="pref_call_vibrations_title">Vibrazione in chiamata</string>
+    <string name="call_vibration_connected">Alla risposta</string>
+    <string name="call_vibration_disconnected">A fine chiamata</string>
+    <string name="call_vibration_waiting">Su chiamata in attesa</string>
+    <string name="call_vibration_periodic">Ogni 45 secondi durante una chiamata effettuata</string>
+
+    <!-- QuickSettings tile order -->
+    <string name="pref_qs_tile_order_title">Ordinamento Icone pulsanti</string>
+    <string name="pref_qs_tile_order_summary">Consenti il riordino delle icone del Quicksettings</string>
 
 
 

@@ -190,16 +190,15 @@
     <!-- Minimum brightness level -->
     <string name="pref_brightness_min_title">明るさの最小値</string>
     <string name="pref_brightness_min_summary">明るさの最小値を設定します。手動設定にのみ反映されます。(要再起動)</string>
-    <string name="pref_brightness_dlg_msg">設定可能な値: 10 &#8211; 80</string>
 
     <!--  Autobrightness levels -->
     <string name="pref_ab_title">自動調整値</string>
     <string name="pref_ab_summary">明るさの自動調整で使用する値を設定します</string>
     <string name="level">値</string>
     <string name="pref_ab_lux_max_label">最大ルクス</string>
-    <string name="pref_ab_brighness_label">明るさ (10 &#8211; 255)</string>
+    <string name="pref_ab_brighness_label">明るさ (%d &#8211; 255)</string>
     <string name="pref_ab_number_error_general">指定した値は不正です。</string>
-    <string name="pref_ab_brightness_too_low">10未満に設定するのはおすすめできません。</string>
+    <string name="pref_ab_brightness_too_low">%d未満に設定するのはおすすめできません。</string>
     <string name="pref_ab_brightness_too_high">255より上には設定できません。</string>
     <string name="pref_ab_number_error_negative">値は低かったり同じにはできません。</string>
     <string name="pref_ab_number_not_ascending">最低値が最大値を上回ることはできません。</string>
@@ -207,6 +206,7 @@
     <string name="pref_ab_values_set">%s の値を設定しました。</string>
     <string name="pref_ab_config_saved">明るさ設定を保存しました。</string>
     <string name="pref_ab_config_cancelled">明るさ設定は保存されませんでした。</string>
+    <string name="pref_ab_button_set">セット</string> 
 
     <!-- Lockscreen rotation -->
     <string name="pref_lockscreen_rotation_title">ロック画面での回転を有効化</string>
@@ -255,7 +255,7 @@
     <string name="pref_hwkey_kill_delay_summary">前面アプリの終了をするまでにどれぐらいキーを押しっぱなしにするか設定します。</string>
     <string name="pref_hwkey_doubletap_speed_title">ダブルタップ速度</string>
     <string name="pref_hwkey_doubletap_speed_summary">メニューキーダブルタップでどれぐらいの速度のタップを認識するか設定します。</string>
-    <string name="app_killed">アプリを終了しました。</string>
+    <string name="app_killed">%s アプリを終了しました。</string>
     <string name="nothing_to_kill">終了するアプリがありません。</string>
     <string name="no_previous_app_found">前のアプリはありません。</string>
 
@@ -651,5 +651,23 @@
     <!-- Disable lockscreen widget limit -->
     <string name="pref_lockscreen_widget_limit_disable_title">ウィジェット制限の無効化</string>
     <string name="pref_lockscreen_widget_limit_disable_summary">ロック画面にいくつでもウィジェットをおけるようにします。</string>
+
+    <!-- RAM Bar -->
+    <!-- [CHAR LIMIT=10] Running services, summary of background processes -->
+    <string name="service_background_processes"><xliff:g id="memory">%1$s</xliff:g>空き</string>
+    <!-- [CHAR LIMIT=10] Running services, summary of foreground processes -->
+    <string name="service_foreground_processes"><xliff:g id="memory">%1$s</xliff:g>使用中</string>
+    <string name="pref_rambar_title">最近のアプリでのRAMバー</string>
+    <string name="rambar_off">無効</string>
+    <string name="rambar_top">上に表示</string>
+    <string name="rambar_bottom">下に表示</string>
+    
+    <!-- HW Key actions for recents button -->
+    <string name="pref_hwkey_recents_singletap_title">最近のアプリキータップアクション</string>
+    <string name="pref_hwkey_recents_longpress_title">最近のアプリキー長押しアクション</string>
+    
+    <!-- Lockscreen battery arc -->
+    <string name="pref_lockscreen_battery_arc_title">バッテリーアークを表示</string>
+    <string name="pref_lockscreen_battery_arc_summary">ロック解除リングハンドルの回りにバッテリーアークを表示します。</string>
 
 </resources>

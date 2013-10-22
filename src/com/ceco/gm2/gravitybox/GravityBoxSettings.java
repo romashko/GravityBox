@@ -199,16 +199,20 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String PREF_KEY_MUSIC_VOLUME_STEPS = "pref_music_volume_steps";
     public static final String PREF_KEY_SAFE_MEDIA_VOLUME = "pref_safe_media_volume";
     public static final String PREF_KEY_VOLUME_PANEL_EXPANDABLE = "pref_volume_panel_expandable";
+    public static final String PREF_KEY_VOLUME_PANEL_AUTOEXPAND = "pref_volume_panel_autoexpand";
     public static final String PREF_KEY_VOLUME_ADJUST_MUTE = "pref_volume_adjust_mute";
     public static final String ACTION_PREF_VOLUME_PANEL_MODE_CHANGED = "gravitybox.intent.action.VOLUME_PANEL_MODE_CHANGED";
     public static final String EXTRA_EXPANDABLE = "expandable";
+    public static final String EXTRA_AUTOEXPAND = "autoExpand";
     public static final String EXTRA_MUTED = "muted";
     public static final String PREF_KEY_LINK_VOLUMES = "pref_link_volumes";
     public static final String ACTION_PREF_LINK_VOLUMES_CHANGED = "gravitybox.intent.action.LINK_VOLUMES_CHANGED";
     public static final String EXTRA_LINKED = "linked";
 
+    public static final String PREF_CAT_HWKEY_ACTIONS = "pref_cat_hwkey_actions";
     public static final String PREF_KEY_HWKEY_MENU_LONGPRESS = "pref_hwkey_menu_longpress";
     public static final String PREF_KEY_HWKEY_HOME_LONGPRESS = "pref_hwkey_home_longpress";
+    public static final String PREF_KEY_HWKEY_HOME_LONGPRESS_KEYGUARD = "pref_hwkey_home_longpress_keyguard";
     public static final String PREF_KEY_HWKEY_MENU_DOUBLETAP = "pref_hwkey_menu_doubletap";
     public static final String PREF_KEY_HWKEY_BACK_LONGPRESS = "pref_hwkey_back_longpress";
     public static final String PREF_KEY_HWKEY_RECENTS_SINGLETAP = "pref_hwkey_recents_singletap";
@@ -229,6 +233,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final int HWKEY_ACTION_CUSTOM_APP2 = 8;
     public static final int HWKEY_ACTION_MENU = 9;
     public static final int HWKEY_ACTION_EXPANDED_DESKTOP = 10;
+    public static final int HWKEY_ACTION_TORCH = 11;
     public static final int HWKEY_DOUBLETAP_SPEED_DEFAULT = 400;
     public static final int HWKEY_KILL_DELAY_DEFAULT = 1000;
     public static final String ACTION_PREF_HWKEY_MENU_LONGPRESS_CHANGED = "gravitybox.intent.action.HWKEY_MENU_LONGPRESS_CHANGED";
@@ -241,6 +246,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String ACTION_PREF_HWKEY_KILL_DELAY_CHANGED = "gravitybox.intent.action.HWKEY_KILL_DELAY_CHANGED";
     public static final String ACTION_PREF_VOLUME_ROCKER_WAKE_CHANGED = "gravitybox.intent.action.VOLUME_ROCKER_WAKE_CHANGED";
     public static final String EXTRA_HWKEY_VALUE = "hwKeyValue";
+    public static final String EXTRA_HWKEY_HOME_LONGPRESS_KG = "hwKeyHomeLongpressKeyguard";
     public static final String EXTRA_VOLUME_ROCKER_WAKE_DISABLE = "volumeRockerWakeDisable";
 
     public static final String PREF_KEY_PHONE_FLIP = "pref_phone_flip";
@@ -573,9 +579,11 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
         private File wallpaperTemporary;
         private File notifBgImagePortrait;
         private File notifBgImageLandscape;
+        private PreferenceScreen mPrefCatHwKeyActions;
         private ListPreference mPrefHwKeyMenuLongpress;
         private ListPreference mPrefHwKeyMenuDoubletap;
         private ListPreference mPrefHwKeyHomeLongpress;
+        private CheckBoxPreference mPrefHwKeyHomeLongpressKeyguard;
         private ListPreference mPrefHwKeyBackLongpress;
         private ListPreference mPrefHwKeyRecentsSingletap;
         private ListPreference mPrefHwKeyRecentsLongpress;
@@ -648,6 +656,8 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
         private ListPreference mPrefDataTrafficPosition;
         private ListPreference mPrefDataTrafficSize;
         private CheckBoxPreference mPrefLinkVolumes;
+        private CheckBoxPreference mPrefVolumePanelExpandable;
+        private CheckBoxPreference mPrefVolumePanelAutoexpand;
 
         @SuppressWarnings("deprecation")
         @Override
@@ -706,9 +716,11 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             notifBgImagePortrait = new File(getActivity().getFilesDir() + "/notifwallpaper");
             notifBgImageLandscape = new File(getActivity().getFilesDir() + "/notifwallpaper_landscape");
 
+            mPrefCatHwKeyActions = (PreferenceScreen) findPreference(PREF_CAT_HWKEY_ACTIONS);
             mPrefHwKeyMenuLongpress = (ListPreference) findPreference(PREF_KEY_HWKEY_MENU_LONGPRESS);
             mPrefHwKeyMenuDoubletap = (ListPreference) findPreference(PREF_KEY_HWKEY_MENU_DOUBLETAP);
             mPrefHwKeyHomeLongpress = (ListPreference) findPreference(PREF_KEY_HWKEY_HOME_LONGPRESS);
+            mPrefHwKeyHomeLongpressKeyguard = (CheckBoxPreference) findPreference(PREF_KEY_HWKEY_HOME_LONGPRESS_KEYGUARD);
             mPrefHwKeyBackLongpress = (ListPreference) findPreference(PREF_KEY_HWKEY_BACK_LONGPRESS);
             mPrefHwKeyRecentsSingletap = (ListPreference) findPreference(PREF_KEY_HWKEY_RECENTS_SINGLETAP);
             mPrefHwKeyRecentsLongpress = (ListPreference) findPreference(PREF_KEY_HWKEY_RECENTS_LONGPRESS);
@@ -774,6 +786,8 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             mPrefSafeMediaVolume = (CheckBoxPreference) findPreference(PREF_KEY_SAFE_MEDIA_VOLUME);
             mPrefMusicVolumeSteps = (CheckBoxPreference) findPreference(PREF_KEY_MUSIC_VOLUME_STEPS);
             mPrefLinkVolumes = (CheckBoxPreference) findPreference(PREF_KEY_LINK_VOLUMES);
+            mPrefVolumePanelExpandable = (CheckBoxPreference) findPreference(PREF_KEY_VOLUME_PANEL_EXPANDABLE);
+            mPrefVolumePanelAutoexpand = (CheckBoxPreference) findPreference(PREF_KEY_VOLUME_PANEL_AUTOEXPAND);
 
             mPrefExpandedDesktop = (ListPreference) findPreference(PREF_KEY_EXPANDED_DESKTOP);
 
@@ -821,6 +835,9 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             }
 
             // Filter preferences according to feature availability 
+            if (!Utils.hasFlash(getActivity())) {
+                mPrefCatHwKeyActions.removePreference(mPrefHwKeyHomeLongpressKeyguard);
+            }
             if (!Utils.hasVibrator(getActivity())) {
                 mPrefCatPhoneTelephony.removePreference(mPrefCallVibrations);
             }
@@ -932,6 +949,33 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             mPrefs.edit().putStringSet(PREF_KEY_QUICK_SETTINGS, qsPrefs).commit();
             mQuickSettings.setEntries(qsEntries.toArray(new CharSequence[qsEntries.size()]));
             mQuickSettings.setEntryValues(qsEntryValues.toArray(new CharSequence[qsEntryValues.size()]));
+
+            // Remove actions for HW keys based on device features
+            mPrefHwKeyMenuLongpress.setEntries(R.array.hwkey_action_entries);
+            mPrefHwKeyMenuLongpress.setEntryValues(R.array.hwkey_action_values);
+            List<CharSequence> actEntries = new ArrayList<CharSequence>(Arrays.asList(
+                    mPrefHwKeyMenuLongpress.getEntries()));
+            List<CharSequence> actEntryValues = new ArrayList<CharSequence>(Arrays.asList(
+                    mPrefHwKeyMenuLongpress.getEntryValues()));
+            if (!Utils.hasFlash(getActivity())) {
+                actEntries.remove(getString(R.string.hwkey_action_torch));
+                actEntryValues.remove("11");
+            }
+            CharSequence[] actionEntries = actEntries.toArray(new CharSequence[actEntries.size()]);
+            CharSequence[] actionEntryValues = actEntryValues.toArray(new CharSequence[actEntryValues.size()]);
+            mPrefHwKeyMenuLongpress.setEntries(actionEntries);
+            mPrefHwKeyMenuLongpress.setEntryValues(actionEntryValues);
+            // other preferences have the exact same entries and entry values
+            mPrefHwKeyMenuDoubletap.setEntries(actionEntries);
+            mPrefHwKeyMenuDoubletap.setEntryValues(actionEntryValues);
+            mPrefHwKeyHomeLongpress.setEntries(actionEntries);
+            mPrefHwKeyHomeLongpress.setEntryValues(actionEntryValues);
+            mPrefHwKeyBackLongpress.setEntries(actionEntries);
+            mPrefHwKeyBackLongpress.setEntryValues(actionEntryValues);
+            mPrefHwKeyRecentsSingletap.setEntries(actionEntries);
+            mPrefHwKeyRecentsSingletap.setEntryValues(actionEntryValues);
+            mPrefHwKeyRecentsLongpress.setEntries(actionEntries);
+            mPrefHwKeyRecentsLongpress.setEntryValues(actionEntryValues);
 
             setDefaultValues();
         }
@@ -1182,6 +1226,10 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             if (key == null || key.equals(PREF_KEY_DATA_TRAFFIC_SIZE)) {
                 mPrefDataTrafficSize.setSummary(mPrefDataTrafficSize.getEntry());
             }
+
+            if (key == null || key.equals(PREF_KEY_VOLUME_PANEL_EXPANDABLE)) {
+                mPrefVolumePanelAutoexpand.setEnabled(mPrefVolumePanelExpandable.isChecked());
+            }
         }
 
         @Override
@@ -1287,6 +1335,10 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 intent.setAction(ACTION_PREF_HWKEY_HOME_LONGPRESS_CHANGED);
                 intent.putExtra(EXTRA_HWKEY_VALUE, Integer.valueOf(
                         prefs.getString(PREF_KEY_HWKEY_HOME_LONGPRESS, "0")));
+            } else if (key.equals(PREF_KEY_HWKEY_HOME_LONGPRESS_KEYGUARD)) {
+                intent.setAction(ACTION_PREF_HWKEY_HOME_LONGPRESS_CHANGED);
+                intent.putExtra(EXTRA_HWKEY_HOME_LONGPRESS_KG, prefs.getBoolean(
+                        GravityBoxSettings.PREF_KEY_HWKEY_HOME_LONGPRESS_KEYGUARD, false));
             } else if (key.equals(PREF_KEY_HWKEY_BACK_LONGPRESS)) {
                 intent.setAction(ACTION_PREF_HWKEY_BACK_LONGPRESS_CHANGED);
                 intent.putExtra(EXTRA_HWKEY_VALUE, Integer.valueOf(
@@ -1314,7 +1366,11 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             } else if (key.equals(PREF_KEY_VOLUME_PANEL_EXPANDABLE)) {
                 intent.setAction(ACTION_PREF_VOLUME_PANEL_MODE_CHANGED);
                 intent.putExtra(EXTRA_EXPANDABLE,
-                        prefs.getBoolean(PREF_KEY_VOLUME_PANEL_EXPANDABLE, true));
+                        prefs.getBoolean(PREF_KEY_VOLUME_PANEL_EXPANDABLE, false));
+            } else if (key.equals(PREF_KEY_VOLUME_PANEL_AUTOEXPAND)) {
+                intent.setAction(ACTION_PREF_VOLUME_PANEL_MODE_CHANGED);
+                intent.putExtra(EXTRA_AUTOEXPAND, 
+                        prefs.getBoolean(PREF_KEY_VOLUME_PANEL_AUTOEXPAND, false));
             } else if (key.equals(PREF_KEY_VOLUME_ADJUST_MUTE)) {
                 intent.setAction(ACTION_PREF_VOLUME_PANEL_MODE_CHANGED);
                 intent.putExtra(EXTRA_MUTED, prefs.getBoolean(PREF_KEY_VOLUME_ADJUST_MUTE, false));

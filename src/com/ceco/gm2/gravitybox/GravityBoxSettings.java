@@ -60,6 +60,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -109,6 +110,8 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
 
     public static final String PREF_CAT_KEY_PHONE = "pref_cat_phone";
     public static final String PREF_KEY_CALLER_FULLSCREEN_PHOTO = "pref_caller_fullscreen_photo";
+    public static final String PREF_KEY_CALLER_UNKNOWN_PHOTO_ENABLE = "pref_caller_unknown_photo_enable";
+    public static final String PREF_KEY_CALLER_UNKNOWN_PHOTO = "pref_caller_unknown_photo";
     public static final String PREF_KEY_ROAMING_WARNING_DISABLE = "pref_roaming_warning_disable";
     public static final String PREF_KEY_NATIONAL_ROAMING = "pref_national_roaming";
     public static final String PREF_CAT_KEY_FIXES = "pref_cat_fixes";
@@ -163,7 +166,6 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String LOCKSCREEN_BG_DEFAULT = "default";
     public static final String LOCKSCREEN_BG_COLOR = "color";
     public static final String LOCKSCREEN_BG_IMAGE = "image";
-    private static final int LOCKSCREEN_BACKGROUND = 1024;
 
     public static final String PREF_KEY_LOCKSCREEN_BATTERY_ARC = "pref_lockscreen_battery_arc";
     public static final String PREF_KEY_LOCKSCREEN_MAXIMIZE_WIDGETS = "pref_lockscreen_maximize_widgets";
@@ -241,6 +243,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final int HWKEY_ACTION_MENU = 9;
     public static final int HWKEY_ACTION_EXPANDED_DESKTOP = 10;
     public static final int HWKEY_ACTION_TORCH = 11;
+    public static final int HWKEY_ACTION_APP_LAUNCHER = 12;
     public static final int HWKEY_DOUBLETAP_SPEED_DEFAULT = 400;
     public static final int HWKEY_KILL_DELAY_DEFAULT = 1000;
     public static final String ACTION_PREF_HWKEY_MENU_LONGPRESS_CHANGED = "gravitybox.intent.action.HWKEY_MENU_LONGPRESS_CHANGED";
@@ -280,8 +283,6 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String NOTIF_BG_IMAGE = "image";
     public static final String NOTIF_BG_COLOR_MODE_OVERLAY = "overlay";
     public static final String NOTIF_BG_COLOR_MODE_UNDERLAY = "underlay";
-    private static final int NOTIF_BG_IMAGE_PORTRAIT = 1025;
-    private static final int NOTIF_BG_IMAGE_LANDSCAPE = 1026;
     public static final String ACTION_NOTIF_BACKGROUND_CHANGED = "gravitybox.intent.action.NOTIF_BACKGROUND_CHANGED";
     public static final String EXTRA_BG_TYPE = "bgType";
     public static final String EXTRA_BG_COLOR = "bgColor";
@@ -289,20 +290,34 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String EXTRA_BG_ALPHA = "bgAlpha";
 
     public static final String PREF_KEY_PIE_CONTROL_ENABLE = "pref_pie_control_enable2";
-    public static final String PREF_KEY_PIE_CONTROL_SEARCH = "pref_pie_control_search";
+    public static final String PREF_KEY_PIE_CONTROL_CUSTOM_KEY = "pref_pie_control_custom_key";
     public static final String PREF_KEY_PIE_CONTROL_MENU = "pref_pie_control_menu";
     public static final String PREF_KEY_PIE_CONTROL_TRIGGERS = "pref_pie_control_trigger_positions";
     public static final String PREF_KEY_PIE_CONTROL_TRIGGER_SIZE = "pref_pie_control_trigger_size";
     public static final String PREF_KEY_PIE_CONTROL_SIZE = "pref_pie_control_size";
     public static final String PREF_KEY_HWKEYS_DISABLE = "pref_hwkeys_disable";
+    public static final String PREF_KEY_PIE_COLOR_BG = "pref_pie_color_bg";
+    public static final String PREF_KEY_PIE_COLOR_FG = "pref_pie_color_fg";
+    public static final String PREF_KEY_PIE_COLOR_OUTLINE = "pref_pie_color_outline";
+    public static final String PREF_KEY_PIE_COLOR_SELECTED = "pref_pie_color_selected";
+    public static final String PREF_KEY_PIE_COLOR_TEXT = "pref_pie_color_text";
+    public static final String PREF_KEY_PIE_COLOR_RESET = "pref_pie_color_reset";
+    public static final int PIE_CUSTOM_KEY_OFF = 0;
+    public static final int PIE_CUSTOM_KEY_SEARCH = 1;
+    public static final int PIE_CUSTOM_KEY_APP_LAUNCHER = 2;
     public static final String ACTION_PREF_PIE_CHANGED = "gravitybox.intent.action.PREF_PIE_CHANGED";
     public static final String EXTRA_PIE_ENABLE = "pieEnable";
-    public static final String EXTRA_PIE_SEARCH = "pieSearch";
+    public static final String EXTRA_PIE_CUSTOM_KEY_MODE = "pieCustomKeyMode";
     public static final String EXTRA_PIE_MENU = "pieMenu";
     public static final String EXTRA_PIE_TRIGGERS = "pieTriggers";
     public static final String EXTRA_PIE_TRIGGER_SIZE = "pieTriggerSize";
     public static final String EXTRA_PIE_SIZE = "pieSize";
     public static final String EXTRA_PIE_HWKEYS_DISABLE = "hwKeysDisable";
+    public static final String EXTRA_PIE_COLOR_BG = "pieColorBg";
+    public static final String EXTRA_PIE_COLOR_FG = "pieColorFg";
+    public static final String EXTRA_PIE_COLOR_OUTLINE = "pieColorOutline";
+    public static final String EXTRA_PIE_COLOR_SELECTED = "pieColorSelected";
+    public static final String EXTRA_PIE_COLOR_TEXT = "pieColorText";
 
     public static final String PREF_KEY_BUTTON_BACKLIGHT_MODE = "pref_button_backlight_mode";
     public static final String PREF_KEY_BUTTON_BACKLIGHT_NOTIFICATIONS = "pref_button_backlight_notifications";
@@ -367,11 +382,13 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String PREF_KEY_NAVBAR_HEIGHT_LANDSCAPE = "pref_navbar_height_landscape";
     public static final String PREF_KEY_NAVBAR_WIDTH = "pref_navbar_width";
     public static final String PREF_KEY_NAVBAR_MENUKEY = "pref_navbar_menukey";
+    public static final String PREF_KEY_NAVBAR_LAUNCHER_ENABLE = "pref_navbar_launcher_enable";
     public static final String ACTION_PREF_NAVBAR_CHANGED = "gravitybox.intent.action.ACTION_NAVBAR_CHANGED";
     public static final String EXTRA_NAVBAR_HEIGHT = "navbarHeight";
     public static final String EXTRA_NAVBAR_HEIGHT_LANDSCAPE = "navbarHeightLandscape";
     public static final String EXTRA_NAVBAR_WIDTH = "navbarWidth";
     public static final String EXTRA_NAVBAR_MENUKEY = "navbarMenukey";
+    public static final String EXTRA_NAVBAR_LAUNCHER_ENABLE = "navbarLauncherEnable";
 
     public static final String PREF_KEY_LOCKSCREEN_TARGETS_ENABLE = "pref_lockscreen_ring_targets_enable";
     public static final String PREF_KEY_LOCKSCREEN_TARGETS_APP[] = new String[] {
@@ -428,7 +445,20 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String EXTRA_DT_ENABLE = "dtEnable";
     public static final String EXTRA_DT_POSITION = "dtPosition";
     public static final String EXTRA_DT_SIZE = "dtSize";
-     
+
+    public static final String PREF_CAT_KEY_APP_LAUNCHER = "pref_cat_app_launcher";
+    public static final List<String> PREF_KEY_APP_LAUNCHER_SLOT = new ArrayList<String>(Arrays.asList(
+            "pref_app_launcher_slot0", "pref_app_launcher_slot1", "pref_app_launcher_slot2",
+            "pref_app_launcher_slot3", "pref_app_launcher_slot4", "pref_app_launcher_slot5",
+            "pref_app_launcher_slot6", "pref_app_launcher_slot7"));
+    public static final String ACTION_PREF_APP_LAUNCHER_CHANGED = "gravitybox.intent.action.APP_LAUNCHER_CHANGED";
+    public static final String EXTRA_APP_LAUNCHER_SLOT = "appLauncherSlot";
+    public static final String EXTRA_APP_LAUNCHER_APP = "appLauncherApp";
+
+    private static final int REQ_LOCKSCREEN_BACKGROUND = 1024;
+    private static final int REQ_NOTIF_BG_IMAGE_PORTRAIT = 1025;
+    private static final int REQ_NOTIF_BG_IMAGE_LANDSCAPE = 1026;
+    private static final int REQ_CALLER_PHOTO = 1027;
 
     private static final List<String> rebootKeys = new ArrayList<String>(Arrays.asList(
             PREF_KEY_FIX_DATETIME_CRASH,
@@ -629,7 +659,14 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
         private CheckBoxPreference mPrefDisableRoamingIndicators;
         private ListPreference mPrefButtonBacklightMode;
         private ListPreference mPrefPieEnabled;
+        private ListPreference mPrefPieCustomKey;
         private CheckBoxPreference mPrefPieHwKeysDisabled;
+        private ColorPickerPreference mPrefPieColorBg;
+        private ColorPickerPreference mPrefPieColorFg;
+        private ColorPickerPreference mPrefPieColorOutline;
+        private ColorPickerPreference mPrefPieColorSelected;
+        private ColorPickerPreference mPrefPieColorText;
+        private Preference mPrefPieColorReset;
         private CheckBoxPreference mPrefGbThemeDark;
         private ListPreference mPrefRecentClear;
         private ListPreference mPrefRambar;
@@ -675,6 +712,12 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
         private CheckBoxPreference mPrefVolumePanelExpandable;
         private CheckBoxPreference mPrefVolumePanelAutoexpand;
         private CheckBoxPreference mPrefHomeDoubletapDisable;
+        private PreferenceScreen mPrefCatAppLauncher;
+        private CheckBoxPreference mPrefNavbarLauncherEnable;
+        private AppPickerPreference[] mPrefAppLauncherSlot;
+        private File callerPhotoFile;
+        private CheckBoxPreference mPrefCallerUnknownPhotoEnable;
+        private Preference mPrefCallerUnknownPhoto;
 
         @SuppressWarnings("deprecation")
         @Override
@@ -732,6 +775,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             wallpaperTemporary = new File(getActivity().getCacheDir() + "/lockwallpaper.tmp");
             notifBgImagePortrait = new File(getActivity().getFilesDir() + "/notifwallpaper");
             notifBgImageLandscape = new File(getActivity().getFilesDir() + "/notifwallpaper_landscape");
+            callerPhotoFile = new File(getActivity().getFilesDir() + "/caller_photo");
 
             mPrefCatHwKeyActions = (PreferenceScreen) findPreference(PREF_CAT_HWKEY_ACTIONS);
             mPrefCatHwKeyMenu = (PreferenceCategory) findPreference(PREF_CAT_HWKEY_MENU);
@@ -783,6 +827,13 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
 
             mPrefPieEnabled = (ListPreference) findPreference(PREF_KEY_PIE_CONTROL_ENABLE);
             mPrefPieHwKeysDisabled = (CheckBoxPreference) findPreference(PREF_KEY_HWKEYS_DISABLE);
+            mPrefPieCustomKey = (ListPreference) findPreference(PREF_KEY_PIE_CONTROL_CUSTOM_KEY);
+            mPrefPieColorBg = (ColorPickerPreference) findPreference(PREF_KEY_PIE_COLOR_BG);
+            mPrefPieColorFg = (ColorPickerPreference) findPreference(PREF_KEY_PIE_COLOR_FG);
+            mPrefPieColorOutline = (ColorPickerPreference) findPreference(PREF_KEY_PIE_COLOR_OUTLINE);
+            mPrefPieColorSelected = (ColorPickerPreference) findPreference(PREF_KEY_PIE_COLOR_SELECTED);
+            mPrefPieColorText = (ColorPickerPreference) findPreference(PREF_KEY_PIE_COLOR_TEXT);
+            mPrefPieColorReset = (Preference) findPreference(PREF_KEY_PIE_COLOR_RESET);
 
             mPrefGbThemeDark = (CheckBoxPreference) findPreference(PREF_KEY_GB_THEME_DARK);
             File file = new File(getActivity().getFilesDir() + "/" + FILE_THEME_DARK_FLAG);
@@ -820,6 +871,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             mPrefNavbarHeightLandscape = (SeekBarPreference) findPreference(PREF_KEY_NAVBAR_HEIGHT_LANDSCAPE);
             mPrefNavbarWidth = (SeekBarPreference) findPreference(PREF_KEY_NAVBAR_WIDTH);
             mPrefNavbarMenukey = (CheckBoxPreference) findPreference(PREF_KEY_NAVBAR_MENUKEY);
+            mPrefNavbarLauncherEnable = (CheckBoxPreference) findPreference(PREF_KEY_NAVBAR_LAUNCHER_ENABLE);
 
             mPrefLockscreenTargetsApp = new AppPickerPreference[5];
             for (int i=0; i<=4; i++) {
@@ -840,6 +892,8 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             mPrefCatPhoneMobileData = (PreferenceCategory) findPreference(PREF_CAT_KEY_PHONE_MOBILE_DATA);
             mPrefMobileDataSlow2gDisable = (CheckBoxPreference) findPreference(PREF_KEY_MOBILE_DATA_SLOW2G_DISABLE);
             mPrefCallVibrations = (MultiSelectListPreference) findPreference(PREF_KEY_CALL_VIBRATIONS);
+            mPrefCallerUnknownPhotoEnable = (CheckBoxPreference) findPreference(PREF_KEY_CALLER_UNKNOWN_PHOTO_ENABLE);
+            mPrefCallerUnknownPhoto = (Preference) findPreference(PREF_KEY_CALLER_UNKNOWN_PHOTO);
 
             mPrefNetworkModeTileMode = (ListPreference) findPreference(PREF_KEY_NETWORK_MODE_TILE_MODE);
             mPrefQsTileBehaviourOverride = 
@@ -851,6 +905,20 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             mPrefSbLockPolicy = (ListPreference) findPreference(PREF_KEY_STATUSBAR_LOCK_POLICY);
             mPrefDataTrafficPosition = (ListPreference) findPreference(PREF_KEY_DATA_TRAFFIC_POSITION);
             mPrefDataTrafficSize = (ListPreference) findPreference(PREF_KEY_DATA_TRAFFIC_SIZE);
+
+            mPrefCatAppLauncher = (PreferenceScreen) findPreference(PREF_CAT_KEY_APP_LAUNCHER);
+            mPrefAppLauncherSlot = new AppPickerPreference[PREF_KEY_APP_LAUNCHER_SLOT.size()];
+            for (int i = 0; i < mPrefAppLauncherSlot.length; i++) {
+                AppPickerPreference appPref = new AppPickerPreference(getActivity(), null);
+                appPref.setKey(PREF_KEY_APP_LAUNCHER_SLOT.get(i));
+                appPref.setTitle(String.format(
+                        getActivity().getString(R.string.pref_app_launcher_slot_title), i + 1));
+                appPref.setDialogTitle(appPref.getTitle());
+                appPref.setDefaultSummary(getActivity().getString(R.string.app_picker_none));
+                appPref.setSummary(getActivity().getString(R.string.app_picker_none));
+                mPrefAppLauncherSlot[i] = appPref;
+                mPrefCatAppLauncher.addPreference(mPrefAppLauncherSlot[i]);
+            }
 
             // Remove Phone specific preferences on Tablet devices
             if (sSystemProperties.isTablet) {
@@ -1206,6 +1274,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 mPrefNavbarHeightLandscape.setEnabled(override && mPrefNavbarEnable.isChecked());
                 mPrefNavbarWidth.setEnabled(override && mPrefNavbarEnable.isChecked());
                 mPrefNavbarMenukey.setEnabled(override && mPrefNavbarEnable.isChecked());
+                mPrefNavbarLauncherEnable.setEnabled(override && mPrefNavbarEnable.isChecked());
             }
 
             if (key == null || key.equals(PREF_KEY_LOCKSCREEN_TARGETS_ENABLE)) {
@@ -1263,6 +1332,14 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
 
             if (key == null || key.equals(PREF_KEY_STATUSBAR_SIGNAL_COLOR_MODE)) {
                 mPrefSbSignalColorMode.setSummary(mPrefSbSignalColorMode.getEntry());
+            }
+
+            if (key == null || key.equals(PREF_KEY_PIE_CONTROL_CUSTOM_KEY)) {
+                mPrefPieCustomKey.setSummary(mPrefPieCustomKey.getEntry());
+            }
+
+            if (key == null || key.equals(PREF_KEY_CALLER_UNKNOWN_PHOTO_ENABLE)) {
+                mPrefCallerUnknownPhoto.setEnabled(mPrefCallerUnknownPhotoEnable.isChecked());
             }
         }
 
@@ -1445,9 +1522,10 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 if (mode == 0) {
                     intent.putExtra(EXTRA_PIE_HWKEYS_DISABLE, false);
                 }
-            } else if (key.equals(PREF_KEY_PIE_CONTROL_SEARCH)) {
+            } else if (key.equals(PREF_KEY_PIE_CONTROL_CUSTOM_KEY)) {
                 intent.setAction(ACTION_PREF_PIE_CHANGED);
-                intent.putExtra(EXTRA_PIE_SEARCH, prefs.getBoolean(PREF_KEY_PIE_CONTROL_SEARCH, false));
+                intent.putExtra(EXTRA_PIE_CUSTOM_KEY_MODE, Integer.valueOf( 
+                        prefs.getString(PREF_KEY_PIE_CONTROL_CUSTOM_KEY, "0")));
             } else if (key.equals(PREF_KEY_PIE_CONTROL_MENU)) {
                 intent.setAction(ACTION_PREF_PIE_CHANGED);
                 intent.putExtra(EXTRA_PIE_MENU, prefs.getBoolean(PREF_KEY_PIE_CONTROL_MENU, false));
@@ -1466,6 +1544,26 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             } else if (key.equals(PREF_KEY_HWKEYS_DISABLE)) {
                 intent.setAction(ACTION_PREF_PIE_CHANGED);
                 intent.putExtra(EXTRA_PIE_HWKEYS_DISABLE, prefs.getBoolean(PREF_KEY_HWKEYS_DISABLE, false));
+            } else if (key.equals(PREF_KEY_PIE_COLOR_BG)) {
+                intent.setAction(ACTION_PREF_PIE_CHANGED);
+                intent.putExtra(EXTRA_PIE_COLOR_BG, prefs.getInt(PREF_KEY_PIE_COLOR_BG, 
+                        getResources().getColor(R.color.pie_background_color)));
+            } else if (key.equals(PREF_KEY_PIE_COLOR_FG)) {
+                intent.setAction(ACTION_PREF_PIE_CHANGED);
+                intent.putExtra(EXTRA_PIE_COLOR_FG, prefs.getInt(PREF_KEY_PIE_COLOR_FG, 
+                        getResources().getColor(R.color.pie_foreground_color)));
+            } else if (key.equals(PREF_KEY_PIE_COLOR_OUTLINE)) {
+                intent.setAction(ACTION_PREF_PIE_CHANGED);
+                intent.putExtra(EXTRA_PIE_COLOR_OUTLINE, prefs.getInt(PREF_KEY_PIE_COLOR_OUTLINE, 
+                        getResources().getColor(R.color.pie_outline_color)));
+            } else if (key.equals(PREF_KEY_PIE_COLOR_SELECTED)) {
+                intent.setAction(ACTION_PREF_PIE_CHANGED);
+                intent.putExtra(EXTRA_PIE_COLOR_SELECTED, prefs.getInt(PREF_KEY_PIE_COLOR_SELECTED, 
+                        getResources().getColor(R.color.pie_selected_color)));
+            } else if (key.equals(PREF_KEY_PIE_COLOR_TEXT)) {
+                intent.setAction(ACTION_PREF_PIE_CHANGED);
+                intent.putExtra(EXTRA_PIE_COLOR_TEXT, prefs.getInt(PREF_KEY_PIE_COLOR_TEXT, 
+                        getResources().getColor(R.color.pie_text_color)));
             } else if (key.equals(PREF_KEY_BUTTON_BACKLIGHT_MODE)) {
                 intent.setAction(ACTION_PREF_BUTTON_BACKLIGHT_CHANGED);
                 intent.putExtra(EXTRA_BB_MODE, prefs.getString(
@@ -1506,6 +1604,15 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             } else if (key.equals(PREF_KEY_NAVBAR_MENUKEY)) {
                 intent.setAction(ACTION_PREF_NAVBAR_CHANGED);
                 intent.putExtra(EXTRA_NAVBAR_MENUKEY, prefs.getBoolean(PREF_KEY_NAVBAR_MENUKEY, false));
+            } else if (key.equals(PREF_KEY_NAVBAR_LAUNCHER_ENABLE)) {
+                intent.setAction(ACTION_PREF_NAVBAR_CHANGED);
+                intent.putExtra(EXTRA_NAVBAR_LAUNCHER_ENABLE,
+                        prefs.getBoolean(PREF_KEY_NAVBAR_LAUNCHER_ENABLE, false));
+            } else if (PREF_KEY_APP_LAUNCHER_SLOT.contains(key)) {
+                intent.setAction(ACTION_PREF_APP_LAUNCHER_CHANGED);
+                intent.putExtra(EXTRA_APP_LAUNCHER_SLOT,
+                        PREF_KEY_APP_LAUNCHER_SLOT.indexOf(key));
+                intent.putExtra(EXTRA_APP_LAUNCHER_APP, prefs.getString(key, null));
             } else if (key.equals(PREF_KEY_STATUSBAR_BRIGHTNESS)) {
                 intent.setAction(ACTION_PREF_STATUSBAR_BRIGHTNESS_CHANGED);
                 intent.putExtra(EXTRA_SB_BRIGHTNESS, prefs.getBoolean(PREF_KEY_STATUSBAR_BRIGHTNESS, false));
@@ -1552,6 +1659,16 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                         Toast.makeText(getActivity(), getString(R.string.reboot_required), Toast.LENGTH_SHORT).show();
                     }
                 });
+                mDialog = builder.create();
+                mDialog.show();
+            }
+
+            if (key.equals(PREF_KEY_BRIGHTNESS_MIN) &&
+                    prefs.getInt(PREF_KEY_BRIGHTNESS_MIN, 20) < 20) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.important);
+                builder.setMessage(R.string.screen_brightness_min_warning);
+                builder.setPositiveButton(android.R.string.ok, null);
                 mDialog = builder.create();
                 mDialog.show();
             }
@@ -1603,8 +1720,30 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 getActivity().recreate();
             } else if (pref == mPrefQsTileOrder) {
                 intent = new Intent(getActivity(), TileOrderActivity.class);
+            } else if (pref == mPrefPieColorReset) {
+                final Resources res = getResources();
+                final int bgColor = res.getColor(R.color.pie_background_color);
+                final int fgColor = res.getColor(R.color.pie_foreground_color);
+                final int outlineColor = res.getColor(R.color.pie_outline_color);
+                final int selectedColor = res.getColor(R.color.pie_selected_color);
+                final int textColor = res.getColor(R.color.pie_text_color);
+                mPrefPieColorBg.setValue(bgColor);
+                mPrefPieColorFg.setValue(fgColor);
+                mPrefPieColorOutline.setValue(outlineColor);
+                mPrefPieColorSelected.setValue(selectedColor);
+                mPrefPieColorText.setValue(textColor);
+                Intent pieIntent = new Intent(ACTION_PREF_PIE_CHANGED);
+                pieIntent.putExtra(EXTRA_PIE_COLOR_BG, bgColor);
+                pieIntent.putExtra(EXTRA_PIE_COLOR_FG, fgColor);
+                pieIntent.putExtra(EXTRA_PIE_COLOR_OUTLINE, outlineColor);
+                pieIntent.putExtra(EXTRA_PIE_COLOR_SELECTED, selectedColor);
+                pieIntent.putExtra(EXTRA_PIE_COLOR_TEXT, textColor);
+                getActivity().sendBroadcast(pieIntent);
+            } else if (pref == mPrefCallerUnknownPhoto) {
+                setCustomCallerImage();
+                return true;
             }
-            
+
             if (intent != null) {
                 try {
                     startActivity(intent);
@@ -1669,7 +1808,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 wallpaperTemporary.setWritable(true, false);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT,Uri.fromFile(wallpaperTemporary));
                 intent.putExtra("return-data", false);
-                getActivity().startActivityFromFragment(this, intent, LOCKSCREEN_BACKGROUND);
+                getActivity().startActivityFromFragment(this, intent, REQ_LOCKSCREEN_BACKGROUND);
             } catch (Exception e) {
                 Toast.makeText(getActivity(), getString(
                         R.string.lockscreen_background_result_not_successful),
@@ -1705,7 +1844,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 wallpaperTemporary.createNewFile();
                 wallpaperTemporary.setWritable(true, false);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(wallpaperTemporary));
-                startActivityForResult(intent, NOTIF_BG_IMAGE_PORTRAIT);
+                startActivityForResult(intent, REQ_NOTIF_BG_IMAGE_PORTRAIT);
             } catch (Exception e) {
                 Toast.makeText(getActivity(), getString(
                         R.string.lockscreen_background_result_not_successful),
@@ -1741,7 +1880,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 wallpaperTemporary.createNewFile();
                 wallpaperTemporary.setWritable(true, false);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(wallpaperTemporary));
-                startActivityForResult(intent, NOTIF_BG_IMAGE_LANDSCAPE);
+                startActivityForResult(intent, REQ_NOTIF_BG_IMAGE_LANDSCAPE);
             } catch (Exception e) {
                 Toast.makeText(getActivity(), getString(
                         R.string.lockscreen_background_result_not_successful),
@@ -1750,9 +1889,38 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             }
         }
 
+        private void setCustomCallerImage() {
+            int width = getResources().getDimensionPixelSize(R.dimen.caller_id_photo_width);
+            int height = getResources().getDimensionPixelSize(R.dimen.caller_id_photo_height);
+            Intent intent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            intent.setType("image/*");
+            intent.putExtra("crop", "true");
+            boolean isPortrait = getResources()
+                    .getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+            intent.putExtra("aspectX", isPortrait ? width : height);
+            intent.putExtra("aspectY", isPortrait ? height : width);
+            intent.putExtra("outputX", isPortrait ? width : height);
+            intent.putExtra("outputY", isPortrait ? height : width);
+            intent.putExtra("scale", true);
+            intent.putExtra("scaleUpIfNeeded", true);
+            intent.putExtra("outputFormat", Bitmap.CompressFormat.PNG.toString());
+            try {
+                wallpaperTemporary.createNewFile();
+                wallpaperTemporary.setWritable(true, false);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(wallpaperTemporary));
+                startActivityForResult(intent, REQ_CALLER_PHOTO);
+            } catch (Exception e) {
+                Toast.makeText(getActivity(), getString(
+                        R.string.caller_unkown_photo_result_not_successful),
+                        Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        }
+
         @Override
         public void onActivityResult(int requestCode, int resultCode, Intent data) {
-            if (requestCode == LOCKSCREEN_BACKGROUND) {
+            if (requestCode == REQ_LOCKSCREEN_BACKGROUND) {
                 if (resultCode == Activity.RESULT_OK) {
                     if (wallpaperTemporary.exists()) {
                         wallpaperTemporary.renameTo(wallpaperImage);
@@ -1769,7 +1937,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                             R.string.lockscreen_background_result_not_successful),
                             Toast.LENGTH_SHORT).show();
                 }
-            } else if (requestCode == NOTIF_BG_IMAGE_PORTRAIT) {
+            } else if (requestCode == REQ_NOTIF_BG_IMAGE_PORTRAIT) {
                 if (resultCode == Activity.RESULT_OK) {
                     if (wallpaperTemporary.exists()) {
                         wallpaperTemporary.renameTo(notifBgImagePortrait);
@@ -1788,7 +1956,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 }
                 Intent intent = new Intent(ACTION_NOTIF_BACKGROUND_CHANGED);
                 getActivity().sendBroadcast(intent);
-            } else if (requestCode == NOTIF_BG_IMAGE_LANDSCAPE) {
+            } else if (requestCode == REQ_NOTIF_BG_IMAGE_LANDSCAPE) {
                 if (resultCode == Activity.RESULT_OK) {
                     if (wallpaperTemporary.exists()) {
                         wallpaperTemporary.renameTo(notifBgImageLandscape);
@@ -1807,6 +1975,23 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 }
                 Intent intent = new Intent(ACTION_NOTIF_BACKGROUND_CHANGED);
                 getActivity().sendBroadcast(intent);
+            } else if (requestCode == REQ_CALLER_PHOTO) {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (wallpaperTemporary.exists()) {
+                        wallpaperTemporary.renameTo(callerPhotoFile);
+                    }
+                    callerPhotoFile.setReadable(true, false);
+                    Toast.makeText(getActivity(), getString(
+                            R.string.caller_unknown_photo_result_successful), 
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    if (wallpaperTemporary.exists()) {
+                        wallpaperTemporary.delete();
+                    }
+                    Toast.makeText(getActivity(), getString(
+                            R.string.caller_unkown_photo_result_not_successful),
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }

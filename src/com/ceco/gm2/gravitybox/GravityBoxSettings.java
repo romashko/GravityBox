@@ -163,6 +163,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String PREF_KEY_LOCKSCREEN_BACKGROUND = "pref_lockscreen_background";
     public static final String PREF_KEY_LOCKSCREEN_BACKGROUND_COLOR = "pref_lockscreen_bg_color";
     public static final String PREF_KEY_LOCKSCREEN_BACKGROUND_IMAGE = "pref_lockscreen_bg_image";
+    public static final String PREF_KEY_LOCKSCREEN_SHADE_DISABLE = "pref_lockscreen_shade_disable";
     public static final String LOCKSCREEN_BG_DEFAULT = "default";
     public static final String LOCKSCREEN_BG_COLOR = "color";
     public static final String LOCKSCREEN_BG_IMAGE = "image";
@@ -202,10 +203,12 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String PREF_KEY_MUSIC_VOLUME_STEPS = "pref_music_volume_steps";
     public static final String PREF_KEY_SAFE_MEDIA_VOLUME = "pref_safe_media_volume";
     public static final String PREF_KEY_VOLUME_PANEL_EXPANDABLE = "pref_volume_panel_expandable";
+    public static final String PREF_KEY_VOLUME_PANEL_FULLY_EXPANDABLE = "pref_volume_panel_expand_fully";
     public static final String PREF_KEY_VOLUME_PANEL_AUTOEXPAND = "pref_volume_panel_autoexpand";
     public static final String PREF_KEY_VOLUME_ADJUST_MUTE = "pref_volume_adjust_mute";
     public static final String ACTION_PREF_VOLUME_PANEL_MODE_CHANGED = "gravitybox.intent.action.VOLUME_PANEL_MODE_CHANGED";
     public static final String EXTRA_EXPANDABLE = "expandable";
+    public static final String EXTRA_EXPANDABLE_FULLY = "expandable_fully";
     public static final String EXTRA_AUTOEXPAND = "autoExpand";
     public static final String EXTRA_MUTED = "muted";
     public static final String PREF_KEY_LINK_VOLUMES = "pref_link_volumes";
@@ -376,6 +379,9 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String ACTION_PREF_SAFE_MEDIA_VOLUME_CHANGED = "gravitybox.intent.action.SAFE_MEDIA_VOLUME_CHANGED";
     public static final String EXTRA_SAFE_MEDIA_VOLUME_ENABLED = "enabled";
 
+    public static final String PREF_CAT_KEY_NAVBAR_KEYS = "pref_cat_navbar_keys";
+    public static final String PREF_CAT_KEY_NAVBAR_COLOR = "pref_cat_navbar_color";
+    public static final String PREF_CAT_KEY_NAVBAR_DIMEN = "pref_cat_navbar_dimen";
     public static final String PREF_KEY_NAVBAR_OVERRIDE = "pref_navbar_override";
     public static final String PREF_KEY_NAVBAR_ENABLE = "pref_navbar_enable";
     public static final String PREF_KEY_NAVBAR_HEIGHT = "pref_navbar_height";
@@ -383,12 +389,18 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
     public static final String PREF_KEY_NAVBAR_WIDTH = "pref_navbar_width";
     public static final String PREF_KEY_NAVBAR_MENUKEY = "pref_navbar_menukey";
     public static final String PREF_KEY_NAVBAR_LAUNCHER_ENABLE = "pref_navbar_launcher_enable";
+    public static final String PREF_KEY_NAVBAR_KEY_COLOR = "pref_navbar_key_color";
+    public static final String PREF_KEY_NAVBAR_KEY_GLOW_COLOR = "pref_navbar_key_glow_color";
+    public static final String PREF_KEY_NAVBAR_BG_COLOR = "pref_navbar_bg_color";
     public static final String ACTION_PREF_NAVBAR_CHANGED = "gravitybox.intent.action.ACTION_NAVBAR_CHANGED";
     public static final String EXTRA_NAVBAR_HEIGHT = "navbarHeight";
     public static final String EXTRA_NAVBAR_HEIGHT_LANDSCAPE = "navbarHeightLandscape";
     public static final String EXTRA_NAVBAR_WIDTH = "navbarWidth";
     public static final String EXTRA_NAVBAR_MENUKEY = "navbarMenukey";
     public static final String EXTRA_NAVBAR_LAUNCHER_ENABLE = "navbarLauncherEnable";
+    public static final String EXTRA_NAVBAR_KEY_COLOR = "navbarKeyColor";
+    public static final String EXTRA_NAVBAR_KEY_GLOW_COLOR = "navbarKeyGlowColor";
+    public static final String EXTRA_NAVBAR_BG_COLOR = "navbarBgColor";
 
     public static final String PREF_KEY_LOCKSCREEN_TARGETS_ENABLE = "pref_lockscreen_ring_targets_enable";
     public static final String PREF_KEY_LOCKSCREEN_TARGETS_APP[] = new String[] {
@@ -683,11 +695,10 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
         private PreferenceScreen mPrefCatMedia;
         private CheckBoxPreference mPrefSafeMediaVolume;
         private ListPreference mPrefExpandedDesktop;
+        private PreferenceCategory mPrefCatNavbarKeys;
+        private PreferenceCategory mPrefCatNavbarColor;
+        private PreferenceCategory mPrefCatNavbarDimen;
         private CheckBoxPreference mPrefNavbarEnable;
-        private SeekBarPreference mPrefNavbarHeight;
-        private SeekBarPreference mPrefNavbarHeightLandscape;
-        private SeekBarPreference mPrefNavbarWidth;
-        private CheckBoxPreference mPrefNavbarMenukey;
         private CheckBoxPreference mPrefMusicVolumeSteps;
         private AppPickerPreference[] mPrefLockscreenTargetsApp;
         private SeekBarPreference mPrefLockscreenTargetsVerticalOffset;
@@ -710,10 +721,10 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
         private ListPreference mPrefDataTrafficSize;
         private CheckBoxPreference mPrefLinkVolumes;
         private CheckBoxPreference mPrefVolumePanelExpandable;
+        private CheckBoxPreference mPrefVolumePanelFullyExpandable;
         private CheckBoxPreference mPrefVolumePanelAutoexpand;
         private CheckBoxPreference mPrefHomeDoubletapDisable;
         private PreferenceScreen mPrefCatAppLauncher;
-        private CheckBoxPreference mPrefNavbarLauncherEnable;
         private AppPickerPreference[] mPrefAppLauncherSlot;
         private File callerPhotoFile;
         private CheckBoxPreference mPrefCallerUnknownPhotoEnable;
@@ -862,16 +873,15 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
             mPrefMusicVolumeSteps = (CheckBoxPreference) findPreference(PREF_KEY_MUSIC_VOLUME_STEPS);
             mPrefLinkVolumes = (CheckBoxPreference) findPreference(PREF_KEY_LINK_VOLUMES);
             mPrefVolumePanelExpandable = (CheckBoxPreference) findPreference(PREF_KEY_VOLUME_PANEL_EXPANDABLE);
+            mPrefVolumePanelFullyExpandable = (CheckBoxPreference) findPreference(PREF_KEY_VOLUME_PANEL_FULLY_EXPANDABLE);
             mPrefVolumePanelAutoexpand = (CheckBoxPreference) findPreference(PREF_KEY_VOLUME_PANEL_AUTOEXPAND);
 
             mPrefExpandedDesktop = (ListPreference) findPreference(PREF_KEY_EXPANDED_DESKTOP);
 
+            mPrefCatNavbarKeys = (PreferenceCategory) findPreference(PREF_CAT_KEY_NAVBAR_KEYS);
+            mPrefCatNavbarColor = (PreferenceCategory) findPreference(PREF_CAT_KEY_NAVBAR_COLOR);
+            mPrefCatNavbarDimen = (PreferenceCategory) findPreference(PREF_CAT_KEY_NAVBAR_DIMEN);
             mPrefNavbarEnable = (CheckBoxPreference) findPreference(PREF_KEY_NAVBAR_ENABLE);
-            mPrefNavbarHeight = (SeekBarPreference) findPreference(PREF_KEY_NAVBAR_HEIGHT);
-            mPrefNavbarHeightLandscape = (SeekBarPreference) findPreference(PREF_KEY_NAVBAR_HEIGHT_LANDSCAPE);
-            mPrefNavbarWidth = (SeekBarPreference) findPreference(PREF_KEY_NAVBAR_WIDTH);
-            mPrefNavbarMenukey = (CheckBoxPreference) findPreference(PREF_KEY_NAVBAR_MENUKEY);
-            mPrefNavbarLauncherEnable = (CheckBoxPreference) findPreference(PREF_KEY_NAVBAR_LAUNCHER_ENABLE);
 
             mPrefLockscreenTargetsApp = new AppPickerPreference[5];
             for (int i=0; i<=4; i++) {
@@ -1270,11 +1280,9 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                     || key.equals(PREF_KEY_NAVBAR_ENABLE)) {
                 final boolean override = mPrefs.getBoolean(PREF_KEY_NAVBAR_OVERRIDE, false);
                 mPrefNavbarEnable.setEnabled(override);
-                mPrefNavbarHeight.setEnabled(override && mPrefNavbarEnable.isChecked());
-                mPrefNavbarHeightLandscape.setEnabled(override && mPrefNavbarEnable.isChecked());
-                mPrefNavbarWidth.setEnabled(override && mPrefNavbarEnable.isChecked());
-                mPrefNavbarMenukey.setEnabled(override && mPrefNavbarEnable.isChecked());
-                mPrefNavbarLauncherEnable.setEnabled(override && mPrefNavbarEnable.isChecked());
+                mPrefCatNavbarKeys.setEnabled(override && mPrefNavbarEnable.isChecked());
+                mPrefCatNavbarColor.setEnabled(override && mPrefNavbarEnable.isChecked());
+                mPrefCatNavbarDimen.setEnabled(override && mPrefNavbarEnable.isChecked());
             }
 
             if (key == null || key.equals(PREF_KEY_LOCKSCREEN_TARGETS_ENABLE)) {
@@ -1328,6 +1336,7 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
 
             if (key == null || key.equals(PREF_KEY_VOLUME_PANEL_EXPANDABLE)) {
                 mPrefVolumePanelAutoexpand.setEnabled(mPrefVolumePanelExpandable.isChecked());
+                mPrefVolumePanelFullyExpandable.setEnabled(mPrefVolumePanelExpandable.isChecked());
             }
 
             if (key == null || key.equals(PREF_KEY_STATUSBAR_SIGNAL_COLOR_MODE)) {
@@ -1486,6 +1495,10 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 intent.setAction(ACTION_PREF_VOLUME_PANEL_MODE_CHANGED);
                 intent.putExtra(EXTRA_EXPANDABLE,
                         prefs.getBoolean(PREF_KEY_VOLUME_PANEL_EXPANDABLE, false));
+            } else if (key.equals(PREF_KEY_VOLUME_PANEL_FULLY_EXPANDABLE)) {
+                intent.setAction(ACTION_PREF_VOLUME_PANEL_MODE_CHANGED);
+                intent.putExtra(EXTRA_EXPANDABLE_FULLY,
+                        prefs.getBoolean(PREF_KEY_VOLUME_PANEL_FULLY_EXPANDABLE, false));
             } else if (key.equals(PREF_KEY_VOLUME_PANEL_AUTOEXPAND)) {
                 intent.setAction(ACTION_PREF_VOLUME_PANEL_MODE_CHANGED);
                 intent.putExtra(EXTRA_AUTOEXPAND, 
@@ -1608,6 +1621,21 @@ public class GravityBoxSettings extends Activity implements GravityBoxResultRece
                 intent.setAction(ACTION_PREF_NAVBAR_CHANGED);
                 intent.putExtra(EXTRA_NAVBAR_LAUNCHER_ENABLE,
                         prefs.getBoolean(PREF_KEY_NAVBAR_LAUNCHER_ENABLE, false));
+            } else if (key.equals(PREF_KEY_NAVBAR_KEY_COLOR)) {
+                intent.setAction(ACTION_PREF_NAVBAR_CHANGED);
+                intent.putExtra(EXTRA_NAVBAR_KEY_COLOR,
+                        prefs.getInt(PREF_KEY_NAVBAR_KEY_COLOR, 
+                                getResources().getColor(R.color.navbar_key_color)));
+            } else if (key.equals(PREF_KEY_NAVBAR_KEY_GLOW_COLOR)) {
+                intent.setAction(ACTION_PREF_NAVBAR_CHANGED);
+                intent.putExtra(EXTRA_NAVBAR_KEY_GLOW_COLOR,
+                        prefs.getInt(PREF_KEY_NAVBAR_KEY_GLOW_COLOR, 
+                                getResources().getColor(R.color.navbar_key_glow_color)));
+            } else if (key.equals(PREF_KEY_NAVBAR_BG_COLOR)) {
+                intent.setAction(ACTION_PREF_NAVBAR_CHANGED);
+                intent.putExtra(EXTRA_NAVBAR_BG_COLOR,
+                        prefs.getInt(PREF_KEY_NAVBAR_BG_COLOR, 
+                                getResources().getColor(R.color.navbar_bg_color)));
             } else if (PREF_KEY_APP_LAUNCHER_SLOT.contains(key)) {
                 intent.setAction(ACTION_PREF_APP_LAUNCHER_CHANGED);
                 intent.putExtra(EXTRA_APP_LAUNCHER_SLOT,

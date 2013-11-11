@@ -158,7 +158,7 @@
     <string name="about_xposed_title">Xposed framework</string>
     <string name="about_xposed_summary">Coded by rovo89@XDA. Touch to visit official thread.</string>
     <string name="about_donate_title">Donate</string>
-    <string name="about_donate_summary">Donate to me if you think this app is worth it! Also consider donating to rovo89 for his excellent Xposed framework.</string>
+    <string name="about_donate_summary">Touch to support development by donating via PayPal</string>
 
     <!-- Reboot confirmation -->
     <string name="reboot_confirm">Your %s will reboot.</string>
@@ -307,6 +307,10 @@
     <!-- Expandable volume panel -->
     <string name="pref_volume_panel_expandable_title">Expandable volume panel</string>
     <string name="pref_volume_panel_expandable_summary">Enables expandable volume panel with ability to set volumes for different streams</string>
+
+    <!-- Fully expandable volume panel -->
+    <string name="pref_volume_panel_expandable_fully_title">Fully expandable volume panel</string>
+    <string name="pref_volume_panel_expandable_fully_summary">Allows the volume panel to take up all the space provided</string>
 
     <!-- Link ringtone & notifications volumes -->
     <string name="pref_link_volumes_title">Link ringtone &amp; notifications volumes</string>
@@ -462,8 +466,8 @@
     <string name="pref_cat_transparency_manager_title">Transparency management</string>
     <string name="pref_tm_statusbar_launcher_title">Statusbar transparency for launcher</string>
     <string name="pref_tm_statusbar_lockscreen_title">Statusbar transparency for lockscreen</string>
-    <string name="pref_tm_navbar_launcher_title">Navbar transparency for launcher</string>
-    <string name="pref_tm_navbar_lockscreen_title">Navbar transparency for lockscreen</string>
+    <string name="pref_tm_navbar_launcher_title">Transparency for launcher</string>
+    <string name="pref_tm_navbar_lockscreen_title">Transparency for lockscreen</string>
 
     <!-- Hide alarm icon -->
     <string name="pref_alarm_icon_hide_title">Hide alarm icon</string>
@@ -755,5 +759,20 @@
     <!-- Minimum screen brightness warning -->
     <string name="screen_brightness_min_warning">Your screen might not support values lower than 20. If your screen doesn\'t light up,
         hold Volume+ key for at least 7 seconds to reset brightness and then adjust minimum brightness to use higher values.</string>
+
+    <!-- Navbar tweaks categories -->
+    <string name="pref_cat_navbar_general_title">General</string>
+    <string name="pref_cat_navbar_keys_title">Navigation keys</string>
+    <string name="pref_cat_navbar_color_title">Color and transparency</string>
+    <string name="pref_cat_navbar_dimen_title">Dimensions</string>
+
+    <!-- Navigation bar colors -->
+    <string name="pref_navbar_key_color_title">Navigation key color</string>
+    <string name="pref_navbar_key_glow_color_title">Navigation key glow color</string>
+    <string name="pref_navbar_bg_color_title">Navigation bar background color</string>
+
+    <!-- Disable lockscreen shade -->
+    <string name="pref_lockscreen_shade_disable_title">Disable lockscreen shade</string>
+    <string name="pref_lockscreen_shade_disable_summary">Removes dark tint from lockscreen</string>
 
 </resources>

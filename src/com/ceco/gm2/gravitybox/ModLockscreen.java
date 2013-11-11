@@ -78,6 +78,7 @@ public class ModLockscreen {
             "com.android.internal.policy.impl.keyguard.KeyguardUpdateMonitorCallback";
     private static final String CLASS_KG_UPDATE_MONITOR_BATTERY_STATUS =
             "com.android.internal.policy.impl.keyguard.KeyguardUpdateMonitor.BatteryStatus";
+    private static final String CLASS_KG_VIEW_BASE = "com.android.internal.policy.impl.keyguard.KeyguardViewBase";
     private static final boolean DEBUG = false;
     private static final boolean DEBUG_ARC = false;
 
@@ -119,6 +120,7 @@ public class ModLockscreen {
             final Class<?> kgViewMediatorClass = XposedHelpers.findClass(CLASS_KGVIEW_MEDIATOR, null);
             final Class<?> kgUpdateMonitorClass = XposedHelpers.findClass(CLASS_KG_UPDATE_MONITOR, null);
             final Class<?> kgUpdateMonitorCbClass = XposedHelpers.findClass(CLASS_KG_UPDATE_MONITOR_CB, null);
+            final Class<?> kgViewBaseClass = XposedHelpers.findClass(CLASS_KG_VIEW_BASE, null);
 
             boolean enableMenuKey = prefs.getBoolean(
                     GravityBoxSettings.PREF_KEY_LOCKSCREEN_MENU_KEY, false);
@@ -539,6 +541,16 @@ public class ModLockscreen {
                     }
                 }
             });
+
+            XposedHelpers.findAndHookMethod(kgViewBaseClass, "resetBackground", new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
+                    if (mPrefs.getBoolean(GravityBoxSettings.PREF_KEY_LOCKSCREEN_SHADE_DISABLE, false)) {
+                        ((View) param.thisObject).setBackground(null);
+                        param.setResult(null);
+                    }
+                }
+            });
         } catch (Throwable t) {
             XposedBridge.log(t);
         }
@@ -625,7 +637,7 @@ public class ModLockscreen {
 
             String[] splitValue = app.split(AppPickerPreference.SEPARATOR);
             ComponentName cn = new ComponentName(splitValue[0], splitValue[1]);
-            Intent i = new Intent();
+            Intent i = new Intent(Intent.ACTION_MAIN);
             i.setComponent(cn);
             appInfo.intent = i;
 

@@ -26,6 +26,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -83,6 +84,7 @@ public class ModStatusbarColor {
     private static TrafficMeter mTrafficMeter;
     private static Context mContextPwm;
     private static int[] mTransparencyValuesPwm = new int[] { 0, 0, 0, 0};
+    private static int mTransparencyModePwm = TransparencyManager.MODE_FULL;
     private static List<BroadcastSubReceiver> mBroadcastSubReceivers;
     private static Unhook mDisplayContentHook;
     private static Object mPhoneWindowManager;
@@ -156,11 +158,23 @@ public class ModStatusbarColor {
                             GravityBoxSettings.EXTRA_SB_ICON_COLOR, mIconManager.getDefaultIconColor());
                     mIconManager.setIconColor(iconColor);
                     applyIconColors();
+                } else if (intent.hasExtra(GravityBoxSettings.EXTRA_SB_ICON_COLOR_SECONDARY)) {
+                    int iconColor = intent.getIntExtra(
+                            GravityBoxSettings.EXTRA_SB_ICON_COLOR_SECONDARY, 
+                            mIconManager.getDefaultIconColor());
+                    mIconManager.setIconColor(1, iconColor);
+                    applyIconColors();
                 } else if (intent.hasExtra(GravityBoxSettings.EXTRA_SB_DATA_ACTIVITY_COLOR)) {
                     int daColor = intent.getIntExtra(
                             GravityBoxSettings.EXTRA_SB_DATA_ACTIVITY_COLOR, 
                             StatusBarIconManager.DEFAULT_DATA_ACTIVITY_COLOR);
                     mIconManager.setDataActivityColor(daColor);
+                    applyIconColors();
+                } else if (intent.hasExtra(GravityBoxSettings.EXTRA_SB_DATA_ACTIVITY_COLOR_SECONDARY)) {
+                    int daColor = intent.getIntExtra(
+                            GravityBoxSettings.EXTRA_SB_DATA_ACTIVITY_COLOR_SECONDARY, 
+                            StatusBarIconManager.DEFAULT_DATA_ACTIVITY_COLOR);
+                    mIconManager.setDataActivityColor(1, daColor);
                     applyIconColors();
                 } else if (intent.hasExtra(GravityBoxSettings.EXTRA_SB_ICON_COLOR_ENABLE)) {
                     mIconColorEnabled = intent.getBooleanExtra(
@@ -223,108 +237,103 @@ public class ModStatusbarColor {
             final Class<?> windowStateClass = XposedHelpers.findClass(CLASS_WINDOW_STATE, null);
             final Class<?> windowManagerServiceClass = XposedHelpers.findClass(CLASS_WINDOW_MANAGER_SERVICE, null);
 
-            if (DEBUG) log("replacing getSystemDecorRectLw method");
-            XposedHelpers.findAndHookMethod(phoneWindowManagerClass,
-                    "getSystemDecorRectLw", Rect.class, new XC_MethodReplacement() {
+            try {
+                mTransparencyModePwm = Integer.valueOf(prefs.getString(GravityBoxSettings.PREF_KEY_TM_MODE, "3"));
+            } catch (NumberFormatException nfe) {
+                //
+            }
 
-                @Override
-                protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-                    if (mContextPwm == null) {
-                        if (DEBUG) log("getSystemDecorRectLw: registering transparency settings receiver");
-                        mTransparencyValuesPwm[0] = prefs.getInt(GravityBoxSettings.PREF_KEY_TM_STATUSBAR_LAUNCHER, 0);
-                        mTransparencyValuesPwm[1] = prefs.getInt(GravityBoxSettings.PREF_KEY_TM_STATUSBAR_LOCKSCREEN, 0);
-                        if (prefs.getBoolean(GravityBoxSettings.PREF_KEY_NAVBAR_OVERRIDE, false)
-                                && prefs.getBoolean(GravityBoxSettings.PREF_KEY_NAVBAR_ENABLE, false)) {
+            if (mTransparencyModePwm != TransparencyManager.MODE_DISABLED) {
+                if (DEBUG) log("replacing getSystemDecorRectLw method");
+                XposedHelpers.findAndHookMethod(phoneWindowManagerClass,
+                        "getSystemDecorRectLw", Rect.class, new XC_MethodReplacement() {
+    
+                    @Override
+                    protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                        if (mContextPwm == null) {
+                            if (DEBUG) log("getSystemDecorRectLw: registering transparency settings receiver");
+                            mTransparencyValuesPwm[0] = prefs.getInt(GravityBoxSettings.PREF_KEY_TM_STATUSBAR_LAUNCHER, 0);
+                            mTransparencyValuesPwm[1] = prefs.getInt(GravityBoxSettings.PREF_KEY_TM_STATUSBAR_LOCKSCREEN, 0);
                             mTransparencyValuesPwm[2] = prefs.getInt(GravityBoxSettings.PREF_KEY_TM_NAVBAR_LAUNCHER, 0);
                             mTransparencyValuesPwm[3] = prefs.getInt(GravityBoxSettings.PREF_KEY_TM_NAVBAR_LOCKSCREEN, 0);
+                            mPhoneWindowManager = param.thisObject;
+                            mContextPwm = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
+                            IntentFilter intentFilter = new IntentFilter();
+                            intentFilter.addAction(GravityBoxSettings.ACTION_PREF_STATUSBAR_COLOR_CHANGED);
+                            mContextPwm.registerReceiver(mBroadcastReceiverPwm, intentFilter);
                         }
-                        mPhoneWindowManager = param.thisObject;
-                        mContextPwm = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
-                        IntentFilter intentFilter = new IntentFilter();
-                        intentFilter.addAction(GravityBoxSettings.ACTION_PREF_STATUSBAR_COLOR_CHANGED);
-                        mContextPwm.registerReceiver(mBroadcastReceiverPwm, intentFilter);
+    
+                        if (!isTransparencyEnabled()) {
+                            if (DEBUG) log("getSystemDecorRectLw: calling original method");
+                            return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args);
+                        } else {
+                            if (DEBUG) log("getSystemDecorRectLw: overriding original method");
+                            Rect rect = (Rect) param.args[0];
+                            rect.left = XposedHelpers.getIntField(param.thisObject, "mSystemLeft");
+                            rect.top = XposedHelpers.getIntField(param.thisObject, "mSystemTop");
+                            rect.right = XposedHelpers.getIntField(param.thisObject, "mSystemRight");
+                            rect.bottom = XposedHelpers.getIntField(param.thisObject, "mSystemBottom");
+                            return 0;
+                        }
                     }
-
-                    if (!isTransparencyEnabled()) {
-                        if (DEBUG) log("getSystemDecorRectLw: calling original method");
-                        return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args);
-                    } else {
-                        if (DEBUG) log("getSystemDecorRectLw: overriding original method");
-                        Rect rect = (Rect) param.args[0];
-                        rect.left = XposedHelpers.getIntField(param.thisObject, "mSystemLeft");
-                        rect.top = XposedHelpers.getIntField(param.thisObject, "mSystemTop");
-                        rect.right = XposedHelpers.getIntField(param.thisObject, "mSystemRight");
-                        rect.bottom = XposedHelpers.getIntField(param.thisObject, "mSystemBottom");
-                        return 0;
-                    }
-                }
-            });
-
-            XposedHelpers.findAndHookMethod(phoneWindowManagerClass, "layoutWindowLw",
-                    CLASS_POLICY_WINDOW_STATE, WindowManager.LayoutParams.class, 
-                    CLASS_POLICY_WINDOW_STATE, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
-                    final boolean isDefaultDisplay = Build.VERSION.SDK_INT > 16 ?
-                            (Boolean) XposedHelpers.callMethod(param.args[0], "isDefaultDisplay") : true;
-                    if (!isNavbarTransparencyEnabled() || !isDefaultDisplay) return; 
-
-                    final WindowManager.LayoutParams attrs = (WindowManager.LayoutParams) param.args[1];
-                    final int fl = attrs.flags;
-                    final int sysUiFl = (Integer) XposedHelpers.callMethod(param.args[0], "getSystemUiVisibility");
-                    final Rect pf = (Rect) XposedHelpers.getObjectField(param.thisObject, "mTmpParentFrame");
-                    final Rect df = (Rect) XposedHelpers.getObjectField(param.thisObject, "mTmpDisplayFrame");
-                    final Rect cf = (Rect) XposedHelpers.getObjectField(param.thisObject, "mTmpContentFrame");
-                    final Rect vf = (Rect) XposedHelpers.getObjectField(param.thisObject, "mTmpVisibleFrame");
-                    final Rect of = Build.VERSION.SDK_INT > 17 ?
-                            (Rect) XposedHelpers.getObjectField(param.thisObject, "mTmpOverscanFrame") : null;
-
-                    if ((fl & WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN) != 0 || (sysUiFl
-                                & (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                           | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)) != 0) {
+                });
+    
+                XposedHelpers.findAndHookMethod(phoneWindowManagerClass, "layoutWindowLw",
+                        CLASS_POLICY_WINDOW_STATE, WindowManager.LayoutParams.class, 
+                        CLASS_POLICY_WINDOW_STATE, new XC_MethodHook(XC_MethodHook.PRIORITY_LOWEST) {
+                    @Override
+                    protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
+                        final boolean isDefaultDisplay = Build.VERSION.SDK_INT > 16 ?
+                                (Boolean) XposedHelpers.callMethod(param.args[0], "isDefaultDisplay") : true;
+                        if (!isNavbarTransparencyEnabled() || !isDefaultDisplay) return; 
+    
+                        final WindowManager.LayoutParams attrs = (WindowManager.LayoutParams) param.args[1];
                         if (attrs.type == WindowManager.LayoutParams.TYPE_WALLPAPER) {
-                            pf.left = df.left = cf.left = Build.VERSION.SDK_INT > 17 ?
-                                    XposedHelpers.getIntField(param.thisObject, "mOverscanScreenLeft") :
-                                    XposedHelpers.getIntField(param.thisObject, "mUnrestrictedScreenLeft");
-                            pf.right = df.right = cf.right = pf.left + Build.VERSION.SDK_INT > 17 ?
-                                    XposedHelpers.getIntField(param.thisObject, "mOverscanScreenWidth") :
-                                    XposedHelpers.getIntField(param.thisObject, "mUnrestrictedScreenWidth");
-                            pf.top = df.top = cf.top = Build.VERSION.SDK_INT > 17 ?
-                                    XposedHelpers.getIntField(param.thisObject, "mOverscanScreenTop") :
+                            final int fl = attrs.flags;
+                            final int sysUiFl = (Integer) XposedHelpers.callMethod(param.args[0], "getSystemUiVisibility");
+                            final Rect pf = (Rect) XposedHelpers.getObjectField(param.thisObject, "mTmpParentFrame");
+                            final Rect df = (Rect) XposedHelpers.getObjectField(param.thisObject, "mTmpDisplayFrame");
+                            final Rect cf = (Rect) XposedHelpers.getObjectField(param.thisObject, "mTmpContentFrame");
+                            final Rect vf = (Rect) XposedHelpers.getObjectField(param.thisObject, "mTmpVisibleFrame");
+                            final Rect of = Build.VERSION.SDK_INT > 17 ?
+                                (Rect) XposedHelpers.getObjectField(param.thisObject, "mTmpOverscanFrame") : null;
+
+                            pf.top = df.top = cf.top = vf.top = 
                                     XposedHelpers.getIntField(param.thisObject, "mUnrestrictedScreenTop");
-                            pf.bottom = df.bottom = cf.bottom = pf.top + Build.VERSION.SDK_INT > 17 ? 
-                                    XposedHelpers.getIntField(param.thisObject, "mOverscanScreenHeight") :
+                            pf.bottom = df.bottom = cf.bottom = vf.bottom = pf.top + 
                                     XposedHelpers.getIntField(param.thisObject, "mUnrestrictedScreenHeight");
+
                             if (Build.VERSION.SDK_INT > 17) {
                                 of.set(pf);
                             }
+
                             XposedHelpers.callMethod(param.thisObject, "applyStableConstraints",
                                     sysUiFl, fl, cf);
-                            vf.set(cf);
                             if (Build.VERSION.SDK_INT > 17) {
                                 XposedHelpers.callMethod(param.args[0], "computeFrameLw", pf, df, of, cf, vf);
                             } else {
                                 XposedHelpers.callMethod(param.args[0], "computeFrameLw", pf, df, cf, vf);
                             }
+
                             if (DEBUG) log("layoutWindowLw recomputing frame");
                         }
                     }
+                });
+    
+                if (Build.VERSION.SDK_INT > 17) {
+                    XposedHelpers.findAndHookMethod(windowStateClass, "computeFrameLw",
+                            Rect.class, Rect.class, Rect.class, Rect.class, Rect.class, windowStateComputeFrameLw);
+                } else {
+                    XposedHelpers.findAndHookMethod(windowStateClass, "computeFrameLw",
+                            Rect.class, Rect.class, Rect.class, Rect.class, windowStateComputeFrameLw);
                 }
-            });
-
-            if (Build.VERSION.SDK_INT > 17) {
-                XposedHelpers.findAndHookMethod(windowStateClass, "computeFrameLw",
-                        Rect.class, Rect.class, Rect.class, Rect.class, Rect.class, windowStateComputeFrameLw);
-            } else {
-                XposedHelpers.findAndHookMethod(windowStateClass, "computeFrameLw",
-                        Rect.class, Rect.class, Rect.class, Rect.class, windowStateComputeFrameLw);
+    
+                XposedHelpers.findAndHookMethod(windowManagerServiceClass, "adjustWallpaperWindowsLocked",
+                        adjustWallpaperHook);
+    
+                XposedHelpers.findAndHookMethod(windowManagerServiceClass, "updateWallpaperOffsetLocked",
+                        CLASS_WINDOW_STATE, boolean.class, adjustWallpaperHook);
             }
-
-            XposedHelpers.findAndHookMethod(windowManagerServiceClass, "adjustWallpaperWindowsLocked",
-                    adjustWallpaperHook);
-
-            XposedHelpers.findAndHookMethod(windowManagerServiceClass, "updateWallpaperOffsetLocked",
-                    CLASS_WINDOW_STATE, boolean.class, adjustWallpaperHook);
 
         } catch (Throwable t) {
             XposedBridge.log(t);
@@ -424,16 +433,18 @@ public class ModStatusbarColor {
     };
 
     private static boolean isTransparencyEnabled() {
-        boolean enabled = false;
-        for (int i = 0; i < 4; i++) {
-            enabled |= mTransparencyValuesPwm[i] != 0;
-        }
-        return enabled;
+        return (isStatusbarTransparencyEnabled() ||
+                isNavbarTransparencyEnabled());
+    }
+
+    private static boolean isStatusbarTransparencyEnabled() {
+        return (TransparencyManager.isStatusbarEnabled(mTransparencyModePwm) &&
+                (mTransparencyValuesPwm[0] != 0 || mTransparencyValuesPwm[1] != 0));
     }
 
     private static boolean isNavbarTransparencyEnabled() {
-        return (mTransparencyValuesPwm[2] != 0 ||
-                mTransparencyValuesPwm[3] != 0);
+        return (TransparencyManager.isNavbarEnabled(mTransparencyModePwm) &&
+                (mTransparencyValuesPwm[2] != 0 || mTransparencyValuesPwm[3] != 0));
     }
 
     private static int getWallpaperWidth() {
@@ -492,8 +503,14 @@ public class ModStatusbarColor {
                     mIconManager.setIconColor(
                             prefs.getInt(GravityBoxSettings.PREF_KEY_STATUSBAR_ICON_COLOR,
                                     mIconManager.getDefaultIconColor()));
+                    mIconManager.setIconColor(1,
+                            prefs.getInt(GravityBoxSettings.PREF_KEY_STATUSBAR_ICON_COLOR_SECONDARY,
+                                    mIconManager.getDefaultIconColor()));
                     mIconManager.setDataActivityColor(
                             prefs.getInt(GravityBoxSettings.PREF_KEY_STATUSBAR_DATA_ACTIVITY_COLOR, 
+                                    StatusBarIconManager.DEFAULT_DATA_ACTIVITY_COLOR));
+                    mIconManager.setDataActivityColor(1,
+                            prefs.getInt(GravityBoxSettings.PREF_KEY_STATUSBAR_DATA_ACTIVITY_COLOR_SECONDARY, 
                                     StatusBarIconManager.DEFAULT_DATA_ACTIVITY_COLOR));
                     mIconManager.setFollowStockBatteryColor(prefs.getBoolean(
                             GravityBoxSettings.PREF_KEY_STATUSBAR_COLOR_FOLLOW_STOCK_BATTERY, false));
@@ -523,20 +540,25 @@ public class ModStatusbarColor {
 
                 @Override
                 protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
+                    prefs.reload();
                     mPhoneStatusBar = param.thisObject;
                     Context context = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
 
-                    mTransparencyManager = new TransparencyManager(context);
-                    mTransparencyManager.setStatusbar(XposedHelpers.getObjectField(param.thisObject, "mStatusBarView"));
-                    if (prefs.getBoolean(GravityBoxSettings.PREF_KEY_NAVBAR_OVERRIDE, false)) {
-                        mTransparencyManager.setNavbar(XposedHelpers.getObjectField(
-                                param.thisObject, "mNavigationBarView"));
+                    int tmMode = TransparencyManager.MODE_FULL;
+                    try {
+                        tmMode = Integer.valueOf(prefs.getString(GravityBoxSettings.PREF_KEY_TM_MODE, "3"));
+                    } catch (NumberFormatException nfe) {
+                        log("Invalid value for PREF_KEY_TM_MODE preference");
                     }
-                    mTransparencyManager.initPreferences(prefs);
-                    mBroadcastSubReceivers.add(mTransparencyManager);
+                    if (tmMode != TransparencyManager.MODE_DISABLED) {
+                        mTransparencyManager = new TransparencyManager(context, tmMode);
+                        mTransparencyManager.setStatusbar(XposedHelpers.getObjectField(param.thisObject, "mStatusBarView"));
+                        mTransparencyManager.setNavbar(XposedHelpers.getObjectField(param.thisObject, "mNavigationBarView"));
+                        mTransparencyManager.initPreferences(prefs);
+                        mBroadcastSubReceivers.add(mTransparencyManager);
+                    }
 
                     mBatteryController = XposedHelpers.getObjectField(param.thisObject, "mBatteryController");
-                    prefs.reload();
                     int bgColor = prefs.getInt(GravityBoxSettings.PREF_KEY_STATUSBAR_BGCOLOR, Color.BLACK);
                     setStatusbarBgColor(bgColor);
                     applyIconColors();
@@ -730,17 +752,17 @@ public class ModStatusbarColor {
                                 ImageView mobile = (ImageView) XposedHelpers.getObjectField(param.thisObject, "mMobileGemini");
                                 if (mobile != null) {
                                     int resId = (Integer) XposedHelpers.callMethod(mobileIconIdsGemini[0], "getIconId");
-                                    Drawable d = mIconManager.getMobileIcon(resId);
+                                    Drawable d = mIconManager.getMobileIcon(1, resId);
                                     if (d != null) mobile.setImageDrawable(d);
                                 }
-                                if (mIconManager.isMobileIconChangeAllowed()) {
+                                if (mIconManager.isMobileIconChangeAllowed(1)) {
                                     ImageView mobileActivity = 
                                             (ImageView) XposedHelpers.getObjectField(param.thisObject, "mMobileActivityGemini");
                                     if (mobileActivity != null) {
                                         try {
                                             int resId = (Integer) XposedHelpers.callMethod(mobileActivityIdGemini, "getIconId");
                                             Drawable d = res.getDrawable(resId).mutate();
-                                            d = mIconManager.applyDataActivityColorFilter(d);
+                                            d = mIconManager.applyDataActivityColorFilter(1, d);
                                             mobileActivity.setImageDrawable(d);
                                         } catch (Resources.NotFoundException e) { 
                                             mobileActivity.setImageDrawable(null);
@@ -751,7 +773,7 @@ public class ModStatusbarColor {
                                         try {
                                             int resId = (Integer) XposedHelpers.callMethod(mobileTypeIdGemini, "getIconId");
                                             Drawable d = res.getDrawable(resId).mutate();
-                                            d = mIconManager.applyColorFilter(d);
+                                            d = mIconManager.applyColorFilter(1, d);
                                             mobileType.setImageDrawable(d);
                                         } catch (Resources.NotFoundException e) { 
                                             mobileType.setImageDrawable(null);
@@ -763,7 +785,7 @@ public class ModStatusbarColor {
                                             try {
                                                 int resId = XposedHelpers.getIntField(param.thisObject, "mRoamingGeminiId");
                                                 Drawable d = res.getDrawable(resId).mutate();
-                                                d = mIconManager.applyColorFilter(d);
+                                                d = mIconManager.applyColorFilter(1, d);
                                                 mobileRoam.setImageDrawable(d);
                                             } catch (Resources.NotFoundException e) { 
                                                 mobileRoam.setImageDrawable(null);
@@ -773,6 +795,24 @@ public class ModStatusbarColor {
                                 }
                             }
                         }
+                    }
+
+                    // Airplane mode icon
+                    try {
+                        ImageView airplaneModeIcon = Utils.hasGeminiSupport() ?
+                                (ImageView) XposedHelpers.getObjectField(param.thisObject, "mFlightMode") :
+                                    (ImageView) XposedHelpers.getObjectField(param.thisObject, "mAirplane");
+                        if (airplaneModeIcon != null) {
+                            Drawable d = airplaneModeIcon.getDrawable();
+                            if (mIconColorEnabled) {
+                                d = mIconManager.applyColorFilter(d);
+                            } else if (d != null) {
+                                d.setColorFilter(null);
+                            }
+                            airplaneModeIcon.setImageDrawable(d);
+                        }
+                    } catch (Throwable t) {
+                        log("Error setting airplane mode icon: " + t.getMessage());
                     }
 
                     if (Utils.isMtkDevice() && mRoamingIndicatorsDisabled) {
@@ -838,14 +878,24 @@ public class ModStatusbarColor {
 
     private static void setStatusbarBgColor(int color) {
         if (mPanelBar != null) {
-            if (!(mPanelBar.getBackground() instanceof BackgroundAlphaColorDrawable)) {
-                BackgroundAlphaColorDrawable colorDrawable = new BackgroundAlphaColorDrawable(color);
-                mPanelBar.setBackground(colorDrawable);
-                if (DEBUG) log("statusbar view backround replaced with BackgroundAlphaColorDrawable");
+            if (Utils.isXperiaDevice()) {
+                if (!(mPanelBar.getBackground() instanceof ColorDrawable)) {
+                    ColorDrawable colorDrawable = new ColorDrawable(color);
+                    mPanelBar.setBackground(colorDrawable);
+                    if (DEBUG) log("statusbar view backround replaced with ColorDrawable");
+                } else {
+                    ((ColorDrawable) mPanelBar.getBackground()).setColor(color);
+                }
             } else {
-                ((BackgroundAlphaColorDrawable) mPanelBar.getBackground()).setBgColor(color);
-                if (DEBUG) log("statusbar background color set to: " + color);
+                if (!(mPanelBar.getBackground() instanceof BackgroundAlphaColorDrawable)) {
+                    BackgroundAlphaColorDrawable colorDrawable = new BackgroundAlphaColorDrawable(color);
+                    mPanelBar.setBackground(colorDrawable);
+                    if (DEBUG) log("statusbar view backround replaced with BackgroundAlphaColorDrawable");
+                } else {
+                    ((BackgroundAlphaColorDrawable) mPanelBar.getBackground()).setBgColor(color);
+                }
             }
+            if (DEBUG) log("statusbar background color set to: " + color);
         }
     }
 
